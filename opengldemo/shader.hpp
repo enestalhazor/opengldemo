@@ -10,9 +10,9 @@
 class Shader
 {
 private:
-	unsigned int shaderProgram;
 
 public:
+	unsigned int shaderProgram;
 
 	Shader(const char* filename);
 
@@ -23,6 +23,8 @@ public:
 	void Uniform1f(const char* name, float f);
 
 	void UniformMatrix4f(const char *name, glm::mat4 trans);
+
+	void Bind() const;
 
 private:
 	unsigned int CreateShader(const std::string& code, unsigned int shaderType) const;

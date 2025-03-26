@@ -68,7 +68,7 @@ Shader::Shader(const char* filename)
 		std::cout << "shader program couldn't be linked\n" << infoLog << std::endl;
 	}
 
-	glUseProgram(shaderProgram);
+	Bind();
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 }
@@ -76,6 +76,11 @@ Shader::Shader(const char* filename)
 Shader::~Shader()
 {
 	glDeleteProgram(shaderProgram);
+}
+
+void Shader::Bind() const
+{
+	glUseProgram(shaderProgram);
 }
 
 void Shader::Uniform4f(const char* name, float f1, float f2, float f3, float f4)

@@ -17,4 +17,6 @@ public:
 	~VertexArray();
 
 	void Draw() const;
+
+	void Bind() const;
 };
