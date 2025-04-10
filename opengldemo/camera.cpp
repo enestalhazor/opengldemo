@@ -1,7 +1,7 @@
 #include "camera.hpp"
 
 
-Camera::Camera() : RigidBody()
+Camera::Camera() : Camera(glm::vec3(0.0f))
 {
 
 }

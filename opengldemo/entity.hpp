@@ -21,7 +21,7 @@ public:
 
 	Entity();
 	Entity(glm::vec3 pos);
-	glm::vec3 getPos() const;
+	glm::vec3 GetPos() const;
 	// moves the entity using it speed
 	void Move();
 	// moves the entity by delta
@@ -31,15 +31,20 @@ public:
 	unsigned int GetId() const;
 	glm::vec3 GetDirection() const;
 	glm::vec3 GetScale() const;
+	glm::vec3 GetSpeed() const;
 	float GetYaw() const;
 	float GetPitch() const;
 	void SetSpeed(glm::vec3 speed);
+	void SetYaw(float yaw);
+	void SetPitch(float pitch);
+	void SetPos(glm::vec3 pos);
 	void SetScale(glm::vec3 scale);
 	float DistanceFrom(const Entity& entity) const;
 	void MoveForward(float amount);
 	void MoveBackward(float amount);
 	void MoveRight(float amount);
 	void MoveLeft(float amount);
+	glm::mat4 GetModelMatrix() const;
 
 private:
 	void calculateDirection();

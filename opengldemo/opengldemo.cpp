@@ -16,17 +16,8 @@
 #include "renderer.hpp"
 #include "physical.hpp"
 #include "vertex_data.hpp"
-
-struct Bullet
-{
-	glm::vec3 Pos;
-	glm::vec3 Speed;
-
-	Bullet(glm::vec3 pos, glm::vec3 speed) : Pos(pos), Speed(speed)
-	{
-
-	}
-};
+#include "global.hpp"
+#include "bullet.hpp"
 
 struct Wall
 {
@@ -43,6 +34,7 @@ struct CallBackParameters
 	Shader& shader;
 	VertexArray& vertex;
 	Texture& texture;
+	RigidBody& target;
 };
 
 float fRand(float fMin, float fMax)
@@ -60,12 +52,7 @@ int score = 0;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-void processInput(GLFWwindow* window, std::vector <Physical> Walls, Physical& npc, Shader& shader, VertexArray& vertex, Texture& texture, bool skill);
-
-
-void moveCamera(glm::vec3 vec);
-
-void move(Physical& obj, glm::vec3 vec);
+void processInput(GLFWwindow* window, Physical& npc, Shader& shader, VertexArray& vertex, Texture& texture, bool skill);
 
 bool firstMouse = true;
 
@@ -79,11 +66,11 @@ int npcHealth = 100;
 
 int skillTime = 0;
 bool skill = false;
-std::vector<Physical> pBullets;
-std::vector<Physical> tBullets;
-std::vector<Physical> objs;
+std::vector<Bullet> pBullets;
+std::vector<Bullet> tBullets;
+std::vector<Physical> walls;
 
-Camera cam;
+Camera cam(glm::vec3(20.0f, 20.0f, 5.0f));
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -91,10 +78,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		glm::vec3 speed = glm::normalize(cam.GetDirection());
-		Physical eBullet(cam.GetPos() + speed * 1.0f, glm::vec3(0.0f, 0.0f, 1.0f), speed, c->shader, c->vertex, c->texture);
-		eBullet.m_Scale = glm::vec3(0.1f, 0.1f, 0.1f);
-		eBullet.m_RigidBody = glm::vec3(0.1f, 0.1f, 0.1f);
-		pBullets.emplace_back(eBullet);
+		pBullets.emplace_back(cam.GetPos() + speed * 1.0f, speed, c->target);
 	}
 
 }
@@ -117,54 +101,54 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
-	cam.ChangeYaw(xoffset);
-	cam.ChangePitch(yoffset);
+	cam.RotateHorizontally(xoffset);
+	cam.RotateVertically(yoffset);
 }
 
-void Create3dObj(std::vector<Physical>& objs, GLFWwindow* window, float yaw, float pitch, glm::vec3 pos, glm::vec3 color, glm::vec3 speed, glm::vec3 scale, glm::vec3 rigidBody)
+
+void Create3dObj(std::vector<Physical>& walls, GLFWwindow* window, float yaw, float pitch, glm::vec3 pos, glm::vec3 color, glm::vec3 speed, glm::vec3 scale, glm::vec3 rigidBody)
 {
 	CallBackParameters* c = (CallBackParameters*)glfwGetWindowUserPointer(window);
 
-	Physical obj(pos, color, speed, c->shader, c->vertex, c->texture);
-	obj.m_Scale = scale;
-	obj.m_Yaw = yaw;
-	obj.m_Pitch = pitch;
-	obj.m_RigidBody = rigidBody;
-	objs.emplace_back(obj);
+	Physical obj(pos, rigidBody, c->shader, c->vertex, c->texture, { Texture("container.jpg"), Texture("container.jpg"), 32.0f });
+	obj.SetScale(scale);
+	obj.SetYaw(yaw);
+	obj.SetPitch(pitch);
+	obj.SetSpeed(speed);
+	walls.emplace_back(obj);
 }
 
-void Create3dObj(std::vector<Physical>& objs, Shader& shader, VertexArray& vertex, Texture& texture, float yaw, float pitch, glm::vec3 pos, glm::vec3 color, glm::vec3 speed, glm::vec3 scale, glm::vec3 rigidBody)
+void Create3dObj(std::vector<Physical>& walls, Shader& shader, VertexArray& vertex, Texture& texture, float yaw, float pitch, glm::vec3 pos, glm::vec3 color, glm::vec3 speed, glm::vec3 scale, glm::vec3 rigidBody)
 {
-	Physical obj(pos, color, speed, shader, vertex, texture);
-	obj.m_Scale = scale;
-	obj.m_Yaw = yaw;
-	obj.m_Pitch = pitch;
-	obj.m_RigidBody = rigidBody;
-	objs.emplace_back(obj);
+	Physical obj(pos, rigidBody, shader, vertex, texture, { Texture("container.jpg"), Texture("container.jpg"), 32.0f });
+	obj.SetScale(scale);
+	obj.SetYaw(yaw);
+	obj.SetPitch(pitch);
+	obj.SetSpeed(speed);
+	walls.emplace_back(obj);
 }
 
 Physical Create2dObj(Shader& shader, VertexArray& vertex, Texture& texture, glm::vec3 pos, glm::vec3 color, glm::vec3 speed, float scale_x, float scale_y)
 {
-	Physical obj(pos, color, speed, shader, vertex, texture);
-	obj.m_Scale.x = scale_x;
-	obj.m_Scale.y = scale_y;
-
+	Physical obj(pos, speed, shader, vertex, texture, { Texture("container.jpg"), Texture("container.jpg"), 32.0f });
+	obj.SetScale(glm::vec3(scale_x, scale_y, 1.0f));
 	return obj;
 }
 
-void BulletProcess(std::vector<Physical>& bullet, Renderer renderer, Physical& Bar, const glm::vec3& vec1, float barScale_x)
+void BulletProcess(std::vector<Bullet>& bullets, Renderer renderer, Physical& bar, const RigidBody& target, float barScale_x, int& health)
 {
-	for (auto& bullet : bullet)
+	for (auto& bullet : bullets)
 	{
-		move(bullet, bullet.m_Speed * 0.5f);
+		bullet.MoveWithoutCollision(bullet.GetSpeed(), walls);
+
 		renderer.Render(bullet);
 
-		if (glm::length(glm::vec3((vec1 - bullet.m_Pos))) < 1.5f)
+		if (bullet.DistanceFrom(target) < 1.5f)
 		{
 			if (health > 0)
 			{
 				health -= 1.0f;
-				Bar.m_Scale.x = barScale_x * health / 100;
+				bar.SetScale(glm::vec3(barScale_x * health / 100, bar.GetScale().y, bar.GetScale().z));
 			}
 		}
 	}
@@ -185,7 +169,38 @@ void RenderGround(Renderer& renderer, VertexArray& vertex, Shader& shader, Textu
 	}
 }
 
-int main()
+void CreateHouse(GLFWwindow* window)
+{
+	// Wall
+	Create3dObj(walls, window, 0, 0, glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
+	Create3dObj(walls, window, 0, 0, glm::vec3(10.0f, 5.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
+	Create3dObj(walls, window, 0, 0, glm::vec3(10.0f, 5.0f, -20.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
+	Create3dObj(walls, window, 0, 0, glm::vec3(0.0f, 5.0f, -20.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
+	Create3dObj(walls, window, 0, 0, glm::vec3(15.0f, 5.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 10.0f, 10.0f), glm::vec3(1.0f, 10.0f, 10.0f));
+	Create3dObj(walls, window, 0, 0, glm::vec3(15.0f, 5.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 10.0f, 10.0f), glm::vec3(1.0f, 10.0f, 10.0f));
+	Create3dObj(walls, window, 0, 0, glm::vec3(-5.0f, 5.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 10.0f, 10.0f), glm::vec3(1.0f, 10.0f, 10.0f));
+	// Door
+	Create3dObj(walls, window, 90.0f, 0, glm::vec3(-5.0f, 5.0f, -8.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.5f, 10.0f, 1.0f), glm::vec3(1.5f, 1.5f, 2.5f));
+	Create3dObj(walls, window, 90.0f, 0, glm::vec3(-5.0f, 5.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.5f, 10.0f, 1.0f), glm::vec3(1.5f, 1.5f, 2.5f));
+	Create3dObj(walls, window, 90.0f, 0, glm::vec3(-5.0f, 7.5f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.0f, 5.0f, 1.0f), glm::vec3(1.5f, 1.5f, 5.0f));
+	// Roof
+	// above the door
+	Create3dObj(walls, window, 0, 90.0f, glm::vec3(0.0f, 10.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	Create3dObj(walls, window, 0, -60.0f, glm::vec3(0.0f, 13.0f, -5.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	// next to the roof of door
+	Create3dObj(walls, window, 0, 90.0f, glm::vec3(0.0f, 10.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	Create3dObj(walls, window, 0, 60.0f, glm::vec3(0.0f, 13.0f, -15.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	// behind the roof6
+	Create3dObj(walls, window, 0, 90.0f, glm::vec3(10.0f, 10.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	Create3dObj(walls, window, 0, 60.0f, glm::vec3(10.0f, 13.0f, -15.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	// next to the roof7 
+	Create3dObj(walls, window, 0, 90.0f, glm::vec3(10.0f, 10.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+	Create3dObj(walls, window, 0, -60.0f, glm::vec3(10.0f, 13.0f, -5.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+}
+
+Globals globals = { nullptr, nullptr , nullptr , nullptr , nullptr , nullptr , nullptr , nullptr };
+
+int main2()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -224,57 +239,46 @@ int main()
 		Renderer renderer(cam);
 
 		Texture tContainer("container.jpg");
-		Texture tHealth("bar.jpg");
+		Texture tHealth("Bar.jpg");
 		Texture t1Container("brick.jpeg");
-		Texture tBullet("bar.jpg");
+		Texture tBullet("Bar.jpg");
 		Texture tTarget("davsan.jpeg");
 
 		Shader shader("shader.glsl");
-		tBullet.Bind();
 
-		CallBackParameters c = { shader, vBox, t1Container };
-		glfwSetWindowUserPointer(window, &c);
+		globals.shader = &shader;
+		globals.vGround = &vGround;
+		globals.vBox = &vBox;
+		globals.tContainer = &tContainer;
+		globals.t1Container = &t1Container;
+		globals.tHealth = &tHealth;
+		globals.tBullet = &tBullet;
+		globals.tTarget = &tTarget;
+
+		tBullet.Bind();
 
 		// Bar
 		Physical hpBar = Create2dObj(shader, vGround, tHealth, glm::vec3(0.7f, -0.9f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f), 0.05f, 0.01f);
 		Physical manaBar = Create2dObj(shader, vGround, tHealth, glm::vec3(0.7f, -0.75f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f), 0.05f, 0.01f);
-		// Wall
-		Create3dObj(objs, window, 0, 0, glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
-		Create3dObj(objs, window, 0, 0, glm::vec3(10.0f, 5.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
-		Create3dObj(objs, window, 0, 0, glm::vec3(10.0f, 5.0f, -20.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
-		Create3dObj(objs, window, 0, 0, glm::vec3(0.0f, 5.0f, -20.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 10.0f, 1.0f));
-		Create3dObj(objs, window, 90.0f, 0, glm::vec3(15.0f, 5.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(1.0f, 10.0f, 10.0f));
-		Create3dObj(objs, window, 90.0f, 0, glm::vec3(15.0f, 5.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(1.0f, 10.0f, 10.0f));
-		Create3dObj(objs, window, 90.0f, 0, glm::vec3(-5.0f, 5.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(1.0f, 10.0f, 10.0f));
-		// Door
-		Create3dObj(objs, window, 90.0f, 0, glm::vec3(-5.0f, 5.0f, -8.3f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.5f, 10.0f, 1.0f), glm::vec3(1.5f, 1.5f, 2.5f));
-		Create3dObj(objs, window, 90.0f, 0, glm::vec3(-5.0f, 5.0f, -2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.5f, 10.0f, 1.0f), glm::vec3(1.5f, 1.5f, 2.5f));
-		Create3dObj(objs, window, 90.0f, 0, glm::vec3(-5.0f, 7.5f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3.0f, 5.0f, 1.0f), glm::vec3(1.5f, 1.5f, 5.0f));
-		// Roof
-		// above the door
-		Create3dObj(objs, window, 0, 90.0f, glm::vec3(0.0f, 10.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		Create3dObj(objs, window, 0, -60.0f, glm::vec3(0.0f, 13.0f, -5.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		// next to the roof of door
-		Create3dObj(objs, window, 0, 90.0f, glm::vec3(0.0f, 10.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		Create3dObj(objs, window, 0, 60.0f, glm::vec3(0.0f, 13.0f, -15.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		// behind the roof6
-		Create3dObj(objs, window, 0, 90.0f, glm::vec3(10.0f, 10.0f, -15.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		Create3dObj(objs, window, 0, 60.0f, glm::vec3(10.0f, 13.0f, -15.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		// next to the roof7 
-		Create3dObj(objs, window, 0, 90.0f, glm::vec3(10.0f, 10.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
-		Create3dObj(objs, window, 0, -60.0f, glm::vec3(10.0f, 13.0f, -5.0f), glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 11.0f, 1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+
+
 		// Npc
-		Create3dObj(objs, shader, vGround, tHealth, 0, 0, glm::vec3(0.0f, 7.5f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.6f, 0.1f, 1.0f), glm::vec3(0.0f));
+		Create3dObj(walls, shader, vGround, tHealth, 0, 0, cam.GetPos() + glm::vec3(70.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.6f, 0.1f, 1.0f), glm::vec3(0.0f));
 		//Obj npcHp(glm::vec3(0.0f, 7.5f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), shader, vGround, tHealth);
 		//npcHp.m_Scale = glm::vec3(0.6f, 0.1f, 1.0f);
 		//npcHp.m_RigidBody = glm::vec3(0.0f);
 		//objs.emplace_back(npcHp);
 
-		Create3dObj(objs, shader, vBox, tTarget, 0, 0, glm::vec3(0.0f, 2.5f, -10.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, 2.0f), glm::vec3(2.0f, 5.0f, 2.0f));
-		Physical& npc = objs.at(objs.size() - 1);
-		Physical& npcHpRef = objs.at(objs.size() - 2);
+		Create3dObj(walls, shader, vBox, tTarget, 0, 0, cam.GetPos() + glm::vec3(70.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, 2.0f), glm::vec3(2.0f, 5.0f, 2.0f));
+		Physical& npc = walls.at(walls.size() - 1);
+		Physical& npcHpRef = walls.at(walls.size() - 2);
 
 		glEnable(GL_DEPTH_TEST);
+
+		CallBackParameters c = { shader, vBox, t1Container, npc };
+		glfwSetWindowUserPointer(window, &c);
+
+		CreateHouse(window);
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -282,7 +286,7 @@ int main()
 			deltaTime = currentFrame - lastFrame;
 			lastFrame = currentFrame;
 
-			processInput(window, objs, npc, shader, vBox, t1Container, skill);
+			processInput(window, npc, shader, vBox, t1Container, skill);
 
 			glClearColor(0.2f, 0.4f, 0.7f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -296,42 +300,39 @@ int main()
 
 			if (cam.GetPos().y > 2)
 			{
-				moveCamera(glm::vec3(0.0f, -0.1f, 0.0f));
+				cam.MoveWithoutCollision(glm::vec3(0.0f, -0.1f, 0.0f), walls);
 			}
 
-			if (npc.m_Pos.y > 2)
+			if (npc.GetPos().y > 2)
 			{
-				move(npc, glm::vec3(0.0f, -0.1f, 0.0f));
+				cam.MoveWithoutCollision(glm::vec3(0.0f, -0.1f, 0.0f), walls);
 			}
 
 			RenderGround(renderer, vGround, shader, tContainer, 50, 50);
 
-			for (auto& wall : objs)
+			for (auto& wall : walls)
 			{
 				renderer.Render(wall);
 			}
 
-			move(npc, (cam.GetPos() - npc.m_Pos) * 0.01f);
-			npcHpRef.m_Pos = npc.m_Pos + glm::vec3(0.0f, 5.0f, 0.0f);
-			npcHpRef.m_Yaw = 90 - cam.GetYaw();
+			npc.MoveWithoutCollision((cam.GetPos() - npc.GetPos()) * 0.01f, walls);
+			npcHpRef.SetPos(npc.GetPos() + glm::vec3(0.0f, 5.0f, 0.0f));
+			npcHpRef.SetYaw(90 - cam.GetYaw());
 
-			if (glm::length(cam.GetPos() - npc.m_Pos) < 5)
+			if (glm::length(cam.GetPos() - npc.GetPos()) < 5)
 			{
-				npc.m_Pos = glm::vec3(fRand(-20, 20), 2.5f, fRand(-20, 20));
+				npc.SetPos(glm::vec3(fRand(-20, 20), 2.5f, fRand(-20, 20)));
 			}
 
 			if (frameCount % 5 == 0)
 			{
 				//glm::vec3 speed =;
-				glm::vec3 speed = glm::normalize(cam.GetPos() - npc.m_Pos) + glm::normalize(glm::vec3(fRand(-1.0f, 1.0f), fRand(-1.0f, 1.0f), fRand(-1.0f, 1.0f))) * 0.2f;
-				Physical eBullet(npc.m_Pos + speed * 2.0f, glm::vec3(1.0f, 0.1f, 0.1f), speed, shader, vBox, tBullet);
-				eBullet.m_Scale = glm::vec3(0.1f, 0.1f, 0.1f);
-				eBullet.m_RigidBody = glm::vec3(0.1f, 0.1f, 0.1f);
-				tBullets.emplace_back(eBullet);
+				glm::vec3 speed = glm::normalize(cam.GetPos() - npc.GetPos()) + glm::normalize(glm::vec3(fRand(-1.0f, 1.0f), fRand(-1.0f, 1.0f), fRand(-1.0f, 1.0f))) * 0.2f;
+				tBullets.emplace_back(npc.GetPos() + speed * 2.0f, speed, cam);
 			}
 
-			BulletProcess(tBullets, renderer, hpBar, cam.GetPos(), 0.05f);
-			BulletProcess(pBullets, renderer, npcHpRef, npc.m_Pos, 0.6f);
+			BulletProcess(tBullets, renderer, hpBar, cam, 0.05f, health);
+			BulletProcess(pBullets, renderer, npcHpRef, npc, 0.6f, npcHealth);
 
 			skill = false;
 			frameCount++;
@@ -344,120 +345,34 @@ int main()
 			glfwPollEvents();
 		}
 	}
-	glfwTerminate();
 	return 0;
 }
 
-bool detectCollisionForCamera(const Physical& obj)
-{
-	glm::vec3 eMin = glm::vec3(obj.m_RigidBody.x / -2, obj.m_RigidBody.y / -2, obj.m_RigidBody.z / -2) + glm::vec3(obj.m_Pos);
-	glm::vec3 eMax = glm::vec3(obj.m_RigidBody.x / 2, obj.m_RigidBody.y / 2, obj.m_RigidBody.z / 2) + glm::vec3(obj.m_Pos);
-
-	glm::vec3 cMin = glm::vec3(cam.m_RigidBody.x / -2, cam.m_RigidBody.y / -2, cam.m_RigidBody.z / -2) + cam.GetPos();
-	glm::vec3 cMax = glm::vec3(cam.m_RigidBody.x / 2, cam.m_RigidBody.y / 2, cam.m_RigidBody.z / 2) + cam.GetPos();
-
-	if (cMin.x < eMax.x &&
-		cMax.x > eMin.x &&
-		cMin.y < eMax.y &&
-		cMax.y > eMin.y &&
-		cMin.z < eMax.z &&
-		cMax.z > eMin.z)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void move(Physical& target, glm::vec3 vec)
-{
-	target.m_Pos += vec;
-
-
-	for (const auto& obj : objs)
-	{
-		if (obj.m_Id == target.m_Id)
-		{
-			continue;
-		}
-
-		glm::vec3 eMin = glm::vec3(obj.m_RigidBody.x / -2, obj.m_RigidBody.y / -2, obj.m_RigidBody.z / -2) + glm::vec3(obj.m_Pos);
-		glm::vec3 eMax = glm::vec3(obj.m_RigidBody.x / 2, obj.m_RigidBody.y / 2, obj.m_RigidBody.z / 2) + glm::vec3(obj.m_Pos);
-
-		glm::vec3 cMin = glm::vec3(target.m_RigidBody.x / -2, target.m_RigidBody.y / -2, target.m_RigidBody.z / -2) + glm::vec3(target.m_Pos);
-		glm::vec3 cMax = glm::vec3(target.m_RigidBody.x / 2, target.m_RigidBody.y / 2, target.m_RigidBody.z / 2) + glm::vec3(target.m_Pos);
-
-		if (cMin.x < eMax.x &&
-			cMax.x > eMin.x &&
-			cMin.y < eMax.y &&
-			cMax.y > eMin.y &&
-			cMin.z < eMax.z &&
-			cMax.z > eMin.z)
-		{
-			target.m_Pos -= vec;
-			break;
-		}
-	}
-}
-
-void moveCamera(glm::vec3 vec)
-{
-	cam.SetPos(cam.GetPos() + vec);
-
-	for (const auto& obj : objs)
-	{
-		glm::vec3 eMin = glm::vec3(obj.m_RigidBody.x / -2, obj.m_RigidBody.y / -2, obj.m_RigidBody.z / -2) + glm::vec3(obj.m_Pos);
-		glm::vec3 eMax = glm::vec3(obj.m_RigidBody.x / 2, obj.m_RigidBody.y / 2, obj.m_RigidBody.z / 2) + glm::vec3(obj.m_Pos);
-
-		glm::vec3 cMin = glm::vec3(cam.m_RigidBody.x / -2, cam.m_RigidBody.y / -2, cam.m_RigidBody.z / -2) + glm::vec3(cam.GetPos());
-		glm::vec3 cMax = glm::vec3(cam.m_RigidBody.x / 2, cam.m_RigidBody.y / 2, cam.m_RigidBody.z / 2) + glm::vec3(cam.GetPos());
-
-		if (cMin.x <= eMax.x &&
-			cMax.x >= eMin.x &&
-			cMin.y <= eMax.y &&
-			cMax.y >= eMin.y &&
-			cMin.z <= eMax.z &&
-			cMax.z >= eMin.z)
-		{
-			cam.SetPos(cam.GetPos() - vec);
-			break;
-		}
-	}
-}
-
-
-void processInput(GLFWwindow* window, std::vector <Physical> Walls, Physical& npc, Shader& shader, VertexArray& vertex, Texture& texture, bool skill)
+void processInput(GLFWwindow* window, Physical& npc, Shader& shader, VertexArray& vertex, Texture& texture, bool skill)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	const float cameraSpeed = deltaTime * 30.0f; // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		moveCamera(cam.GetDirection() * cameraSpeed);
+		cam.MoveWithoutCollision(cam.GetDirection() * cameraSpeed, walls);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		moveCamera(glm::normalize(glm::cross(cam.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * -cameraSpeed);
+
+		cam.MoveWithoutCollision(glm::normalize(glm::cross(cam.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * -cameraSpeed, walls);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		moveCamera(cam.GetDirection() * -cameraSpeed);
+		cam.MoveWithoutCollision(cam.GetDirection() * -cameraSpeed, walls);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		moveCamera(glm::normalize(glm::cross(cam.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * cameraSpeed);
+		cam.MoveWithoutCollision(glm::normalize(glm::cross(cam.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * cameraSpeed, walls);
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		cam.SetPos(cam.GetPos() + glm::vec3(0.0f, 0.3f, 0.0f));
-		for (const auto& wall : Walls)
-		{
-			if (detectCollisionForCamera(wall))
-			{
-				cam.SetPos(cam.GetPos() - glm::vec3(0.0f, 0.3f, 0.0f));
-				break;
-			}
-		}
+		cam.MoveWithoutCollision(glm::vec3(0.0f, 0.3f, 0.0f), walls);
 	}
 	if (cam.GetPos().y < 2)
 	{
@@ -466,7 +381,7 @@ void processInput(GLFWwindow* window, std::vector <Physical> Walls, Physical& np
 
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
 	{
-		move(npc, glm::vec3(0.0f, 0.3f, 0.0f));
+		npc.MoveWithoutCollision(glm::vec3(0.0f, 0.3f, 0.0f), walls);
 	}
 
 	if (skill == true)
@@ -476,9 +391,8 @@ void processInput(GLFWwindow* window, std::vector <Physical> Walls, Physical& np
 			CallBackParameters* c = (CallBackParameters*)glfwGetWindowUserPointer(window);
 
 			glm::vec3 speed = glm::normalize(cam.GetDirection());
-			Physical eBullet(cam.GetPos() + speed * 1.0f, glm::vec3(0.0f, 0.0f, 1.0f), speed, c->shader, c->vertex, c->texture);
-			eBullet.m_Scale = glm::vec3(1.0f, 1.0f, 1.0f);
-			eBullet.m_RigidBody = glm::vec3(0.1f, 0.1f, 0.1f);
+			Bullet eBullet(cam.GetPos() + speed * 1.0f, speed, c->target);
+			eBullet.SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 			pBullets.emplace_back(eBullet);
 		}
 	}

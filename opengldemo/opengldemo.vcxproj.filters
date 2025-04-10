@@ -45,18 +45,23 @@
     <ClCompile Include="physical.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="npc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rigid_body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bullet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lightningdemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.glsl" />
+    <None Include="1.colors.glsl" />
+    <None Include="1.light_cube.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.hpp">
@@ -80,13 +85,22 @@
     <ClInclude Include="physical.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="npc.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rigid_body.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bullet.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="global.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="material.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="light.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,7 @@
 #include "shader.hpp"
 #include "texture.hpp"
 #include "rigid_body.hpp"
+#include "material.hpp"
 
 class Physical : public RigidBody
 {
@@ -12,15 +13,17 @@ protected:
 	const VertexArray& m_VA;
 	const Texture& m_Texture;
 	glm::vec3 m_Color;
+	Material m_Material;
 
 public:
-
-	Physical(Shader& shader, const VertexArray& va, const Texture& m_Texture, glm::vec3 color);
+	Physical(Shader& shader, const VertexArray& va, const Texture& texture);
+	Physical(glm::vec3 pos, glm::vec3 collisionBox, Shader& shader, const VertexArray& va, const Texture& texture, const Material& material);
 	void BindShader() const;
 	void BindVA() const;
 	void BindTexture() const;
 	void Draw() const;
 	Shader& GetShader();
-	glm::vec3 GetColor() const;
+	const Material& GetMaterial() const;
+
 };
 

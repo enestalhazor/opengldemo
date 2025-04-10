@@ -15,5 +15,6 @@ private:
 public:
 	Texture(const char* filename);
 	void Bind() const;
+	void Bind(unsigned int slot) const;
 
 };

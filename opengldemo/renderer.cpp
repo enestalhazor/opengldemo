@@ -13,14 +13,33 @@ void Renderer::Render(const VertexArray& v, Shader& s, const Texture& t, const g
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
-	s.UniformMatrix4f("view", m_Cam.GetViewMatrix());
-	s.UniformMatrix4f("projection", projection);
+	s.UniformMatrix4f("uView", m_Cam.GetViewMatrix());
+	s.UniformMatrix4f("uProjection", projection);
 
-	s.UniformMatrix4f("model", model);
+	s.UniformMatrix4f("uModel", model);
 	s.Uniform4f("uColor", color.x, color.y, color.z, color.w);
 
 	v.Draw();
 }
+
+void Renderer::Render(const VertexArray& v, Shader& s, glm::mat4 model, glm::vec3 color, glm::vec3 lightColor)
+{
+	v.Bind();
+	s.Bind();
+
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
+
+	s.UniformMatrix4f("uView", m_Cam.GetViewMatrix());
+	s.UniformMatrix4f("uProjection", projection);
+
+	s.UniformMatrix4f("uModel", model);
+	s.Uniform3f("uObjectColor", color.x, color.y, color.z);
+	s.Uniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
+
+	v.Draw();
+}
+
 
 void Renderer::Render(Physical& obj)
 {
@@ -31,18 +50,18 @@ void Renderer::Render(Physical& obj)
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
-	obj.GetShader().UniformMatrix4f("view", m_Cam.GetViewMatrix());
-	obj.GetShader().UniformMatrix4f("projection", projection);
+	obj.GetShader().UniformMatrix4f("uView", m_Cam.GetViewMatrix());
+	obj.GetShader().UniformMatrix4f("uProjection", projection);
+	obj.GetShader().Uniform1f("material.shininess", 32.0f);
+	obj.GetShader().Uniform1i("material.diffuse", 0);
+	obj.GetShader().Uniform1i("material.specular", 1);
 
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(obj.getPos()));
-	model = glm::rotate(model, glm::radians(obj.GetYaw()), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(obj.GetPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(obj.GetScale()));
+	obj.GetMaterial().diffuseMap.Bind(0);
+	obj.GetMaterial().specularMap.Bind(1);
 
-	obj.GetShader().UniformMatrix4f("model", model);
-	obj.GetShader().Uniform4f("uColor", obj.GetColor().x, obj.GetColor().y, obj.GetColor().z, 1.0f);
+	glm::mat4 model = obj.GetModelMatrix();
 
+	obj.GetShader().UniformMatrix4f("uModel", model);
 	obj.Draw();
 }
 
@@ -52,17 +71,11 @@ void Renderer::RenderUI(Physical& obj)
 	obj.BindShader();
 	obj.BindTexture();
 
-	obj.GetShader().UniformMatrix4f("view", glm::mat4(1.0f));
-	obj.GetShader().UniformMatrix4f("projection", glm::mat4(1.0f));
+	obj.GetShader().UniformMatrix4f("uView", glm::mat4(1.0f));
+	obj.GetShader().UniformMatrix4f("uProjection", glm::mat4(1.0f));
 
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(obj.getPos()));
-	model = glm::rotate(model, glm::radians(obj.GetYaw()), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(obj.GetPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(obj.GetScale()));
+	glm::mat4 model = obj.GetModelMatrix();
 
-	obj.GetShader().UniformMatrix4f("model", model);
-	obj.GetShader().Uniform4f("uColor", obj.GetColor().x, obj.GetColor().y, obj.GetColor().z, 1.0f);
-
+	obj.GetShader().UniformMatrix4f("uModel", model);
 	obj.Draw();
 }

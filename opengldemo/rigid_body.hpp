@@ -10,6 +10,21 @@ protected:
 public:
 	RigidBody();
 	RigidBody(const glm::vec3& pos, const glm::vec3& collisionBox);
-	bool IsColliding(const std::vector<	RigidBody>& bodies);
-	void MoveWithCollision(glm::vec3 delta, const std::vector<RigidBody>& bodies);
+	bool IsColliding(const RigidBody& body);
+
+	template<typename T>
+	void MoveWithoutCollision(glm::vec3 delta, const std::vector<T>& bodies)
+	{
+		Move(delta);
+
+		for (const RigidBody& wall : bodies)
+		{
+			if (IsColliding(wall))
+			{
+				Move(-delta);
+				break;
+			}
+		}
+	}
+
 };

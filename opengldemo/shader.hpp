@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "material.hpp"
+#include "light.hpp"
 
 class Shader
 {
@@ -19,6 +21,16 @@ public:
 	~Shader();
 
 	void Uniform4f(const char* name, float f1, float f2, float f3, float f4);
+
+	void Uniform3f(const char* name, float f1, float f2, float f3);
+
+	void Uniform1v(const char* name, glm::vec3 uniform);
+
+	void Uniform1i(const char* name, int f);
+
+	void UniformLight(Light& light);
+
+	void Uniform3fv(const char* name, int count, const float* arr);
 
 	void Uniform1f(const char* name, float f);
 

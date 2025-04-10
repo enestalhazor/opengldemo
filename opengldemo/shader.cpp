@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "shader.hpp"
+#include "Light.hpp"
 
 
 Shader::Shader(const char* filename)
@@ -85,21 +86,60 @@ void Shader::Bind() const
 
 void Shader::Uniform4f(const char* name, float f1, float f2, float f3, float f4)
 {
+	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	glUniform4f(vertexColorLocation, f1, f2, f3, f4);
 }
 
+void Shader::Uniform3f(const char* name, float f1, float f2, float f3)
+{
+	Bind();
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
+	glUniform3f(vertexColorLocation, f1, f2, f3);
+}
+
+void Shader::Uniform1v(const char* name, glm::vec3 uniform)
+{
+	Bind();
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
+	glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z);
+}
+
+void Shader::UniformLight(Light& light)
+{
+	Uniform1v("light.ambient", light.Ambient);
+	Uniform1v("light.diffuse", light.Diffuse);
+	Uniform1v("light.specular", light.Specular);
+}
+
+void Shader::Uniform3fv(const char* name, int count, const float* arr)
+{
+	Bind();
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
+	glUniform3fv(vertexColorLocation, count, arr);
+}
+
 void Shader::Uniform1f(const char* name, float f)
 {
+	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	glUniform1f(vertexColorLocation, f);
 }
 
+void Shader::Uniform1i(const char* name, int f)
+{
+	Bind();
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
+	glUniform1i(vertexColorLocation, f);
+}
+
 void Shader::UniformMatrix4f(const char* name, glm::mat4 trans)
 {
+	Bind();
 	unsigned int transformLoc = glGetUniformLocation(shaderProgram, name);
 	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 }
+
 
 unsigned int Shader::CreateShader(const std::string& code, unsigned int shaderType) const
 {

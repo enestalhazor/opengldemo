@@ -10,40 +10,40 @@ RigidBody::RigidBody(const glm::vec3& pos, const glm::vec3& collisionBox) : Enti
 
 }
 
-bool RigidBody::IsColliding(const std::vector<	RigidBody>& bodies)
+bool RigidBody::IsColliding(const RigidBody& body)
 {
-	for (const auto& body : bodies)
+	if (body.m_Id == m_Id)
 	{
-		if (body.m_Id == m_Id)
-		{
-			continue;
-		}
-
-		glm::vec3 eMin = glm::vec3(body.m_CollisionBox.x / -2, body.m_CollisionBox.y / -2, body.m_CollisionBox.z / -2) + glm::vec3(body.m_Pos);
-		glm::vec3 eMax = glm::vec3(body.m_CollisionBox.x / 2, body.m_CollisionBox.y / 2, body.m_CollisionBox.z / 2) + glm::vec3(body.m_Pos);
-
-		glm::vec3 cMin = glm::vec3(m_CollisionBox.x / -2, m_CollisionBox.y / -2, m_CollisionBox.z / -2) + m_Pos;
-		glm::vec3 cMax = glm::vec3(m_CollisionBox.x / 2, m_CollisionBox.y / 2, m_CollisionBox.z / 2) + m_Pos;
-
-		if (cMin.x < eMax.x &&
-			cMax.x > eMin.x &&
-			cMin.y < eMax.y &&
-			cMax.y > eMin.y &&
-			cMin.z < eMax.z &&
-			cMax.z > eMin.z)
-		{
-			return true;
-		}
+		return false;
 	}
 
+	glm::vec4 aMin = glm::vec4(body.m_CollisionBox.x / -2, body.m_CollisionBox.y / -2, body.m_CollisionBox.z / -2, 1.0f);
+	glm::vec4 aMax = glm::vec4(body.m_CollisionBox.x / 2, body.m_CollisionBox.y / 2, body.m_CollisionBox.z / 2, 1.0f);
+
+	glm::vec4 bMin = glm::vec4(m_CollisionBox.x / -2, m_CollisionBox.y / -2, m_CollisionBox.z / -2, 1.0f);
+	glm::vec4 bMax = glm::vec4(m_CollisionBox.x / 2, m_CollisionBox.y / 2, m_CollisionBox.z / 2, 1.0f);
+
+	glm::mat4 t = glm::mat4(1.0f);
+	t = glm::translate(t, body.GetPos());
+
+	aMin = t * aMin;
+	aMax = t * aMax;
+
+	t = glm::mat4(1.0f);
+	t = glm::translate(t, GetPos());
+
+	bMin = t * bMin;
+	bMax = t * bMax;
+
+
+	if (bMin.x < aMax.x &&
+		bMax.x > aMin.x &&
+		bMin.y < aMax.y &&
+		bMax.y > aMin.y &&
+		bMin.z < aMax.z &&
+		bMax.z > aMin.z)
+	{
+		return true;
+	}
 	return false;
-}
-
-void RigidBody::MoveWithCollision(glm::vec3 delta, const std::vector<RigidBody>& bodies)
-{
-	Move(delta);
-	if (IsColliding(bodies))
-	{
-		Move(-delta);
-	}
 }

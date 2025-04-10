@@ -1,8 +1,13 @@
 #include "physical.hpp"
 
-Physical::Physical(Shader& shader, const VertexArray& va, const Texture& texture, glm::vec3 color) : RigidBody(), m_Shader(shader), m_VA(va), m_Texture(texture), m_Color(color)
+Physical::Physical(Shader& shader, const VertexArray& va, const Texture& texture) : Physical(glm::vec3(0.0f), glm::vec3(0.0f), shader, va, texture, {Texture("container.jpg"), Texture("container.jpg"), 32.0f})
 {
 }
+
+Physical::Physical(glm::vec3 pos, glm::vec3 collisionBox, Shader& shader, const VertexArray& va, const Texture& texture, const Material& material) : RigidBody(pos, collisionBox), m_Shader(shader), m_VA(va), m_Texture(texture), m_Material(material)
+{
+}
+
 
 void Physical::BindShader() const
 {
@@ -24,10 +29,11 @@ Shader& Physical::GetShader()
 	return m_Shader;
 }
 
-glm::vec3 Physical::GetColor() const
+const Material& Physical::GetMaterial() const
 {
-	return m_Color;
+	return m_Material;
 }
+
 
 void Physical::Draw() const
 {

@@ -21,6 +21,8 @@ public:
 
 	void Render(const VertexArray& v, Shader& s, const Texture& t, const glm::mat4& model, const glm::vec4& color);
 
+	void Render(const VertexArray& v, Shader& s, glm::mat4 model, glm::vec3 color, glm::vec3 lightColor);
+
 	void Render(Physical& obj);
 
 	void RenderUI(Physical& obj);

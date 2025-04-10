@@ -11,7 +11,7 @@ Entity::Entity(glm::vec3 pos) : m_Id(counter++), m_Pos(pos), m_Scale(1), m_Speed
 
 }
 
-glm::vec3 Entity::getPos() const
+glm::vec3 Entity::GetPos() const
 {
 	return m_Pos;
 }
@@ -53,20 +53,41 @@ glm::vec3 Entity::GetScale() const
 	return m_Scale;
 }
 
-float  Entity::GetYaw() const
+glm::vec3 Entity::GetSpeed() const
 {
+	return m_Speed;
+}
 
+float Entity::GetYaw() const
+{
+	return m_Yaw;
 }
 
 float Entity::GetPitch() const
 {
-
+	return m_Pitch;
 }
 
 void Entity::SetSpeed(glm::vec3 speed)
 {
 	m_Speed = speed;
 }
+
+void Entity::SetPos(glm::vec3 pos)
+{
+	m_Pos = pos;
+}
+
+void Entity::SetYaw(float yaw)
+{
+	m_Yaw = yaw;
+}
+
+void Entity::SetPitch(float pitch)
+{
+	m_Pitch = pitch;
+}
+
 
 void Entity::SetScale(glm::vec3 scale)
 {
@@ -110,4 +131,15 @@ void Entity::calculateDirection()
 	direction.y = sin(glm::radians(m_Pitch));
 	direction.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
 	m_Direction = glm::normalize(direction);
+}
+
+glm::mat4 Entity::GetModelMatrix() const
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, GetPos());
+	model = glm::rotate(model, glm::radians(GetYaw()), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(GetPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::scale(model, GetScale());
+
+	return model;
 }
