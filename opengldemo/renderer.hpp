@@ -7,10 +7,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "camera.hpp"
-#include "vertex.hpp"
+#include "vertex_array.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
-#include "physical.hpp"
 
 class Renderer
 {
@@ -22,8 +21,4 @@ public:
 	void Render(const VertexArray& v, Shader& s, const Texture& t, const glm::mat4& model, const glm::vec4& color);
 
 	void Render(const VertexArray& v, Shader& s, glm::mat4 model, glm::vec3 color, glm::vec3 lightColor);
-
-	void Render(Physical& obj);
-
-	void RenderUI(Physical& obj);
 };

@@ -7,14 +7,17 @@
 class Texture
 {
 private:
-	std::string filename;
-	unsigned int texture;
-	int nrChannels;
-	int height;
-	int width;
+	std::string m_Type;
+	std::string m_Path;
+	unsigned int m_Id;
 public:
-	Texture(const char* filename);
+	
+	Texture(std::string path, std::string directory, std::string type);
 	void Bind() const;
 	void Bind(unsigned int slot) const;
+
+	std::string GetPath();
+	std::string GetType();
+
 
 };

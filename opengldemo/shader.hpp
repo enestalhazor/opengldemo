@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "material.hpp"
-#include "light.hpp"
 
 class Shader
 {
@@ -28,7 +27,7 @@ public:
 
 	void Uniform1i(const char* name, int f);
 
-	void UniformLight(Light& light);
+	void UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos, int index);
 
 	void Uniform3fv(const char* name, int count, const float* arr);
 

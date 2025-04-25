@@ -24,7 +24,7 @@
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vertex.cpp">
+    <ClCompile Include="vertex_array.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vendor\stb\stb_image.cpp">
@@ -42,26 +42,20 @@
     <ClCompile Include="vertex_data.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="physical.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rigid_body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bullet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lightningdemo.cpp">
+    <ClCompile Include="opengldemo2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.glsl" />
     <None Include="1.colors.glsl" />
-    <None Include="1.light_cube.glsl" />
+    <None Include="1.model_loading.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.hpp">
@@ -70,7 +64,7 @@
     <ClInclude Include="texture.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vertex.hpp">
+    <ClInclude Include="vertex_array.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vendor\stb\stb_image.hpp">
@@ -82,16 +76,10 @@
     <ClInclude Include="renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="physical.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rigid_body.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="entity.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bullet.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global.hpp">
@@ -100,7 +88,13 @@
     <ClInclude Include="material.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="light.hpp">
+    <ClInclude Include="mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vertex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

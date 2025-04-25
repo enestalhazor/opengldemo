@@ -1,22 +1,15 @@
 #pragma once
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glm/glm.hpp"
+#define MAX_BONE_INFLUENCE 4
 
-class VertexArray
+struct Vertex
 {
-private:
-	int indexCount;
-	unsigned int VAO;
-	unsigned int VBO;
-	unsigned int EBO;
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TexCoords;
+	glm::vec3 Tangent;
+	glm::vec3 Bitangent;
 
-public:
-
-	VertexArray(float* vertices, unsigned int* indices, int count, int vertexSize, int indexCount);
-
-	~VertexArray();
-
-	void Draw() const;
-
-	void Bind() const;
+	int m_BoneIDs[MAX_BONE_INFLUENCE];
+	float m_Weights[MAX_BONE_INFLUENCE];
 };

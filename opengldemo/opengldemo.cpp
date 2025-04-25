@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+/*#define _CRT_SECURE_NO_WARNINGS
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 #include "shader.hpp"
-#include "vertex.hpp"
+#include "vertex_array.hpp"
 #include "texture.hpp"
 #include "camera.hpp"
 #include "renderer.hpp"
@@ -401,4 +401,4 @@ void processInput(GLFWwindow* window, Physical& npc, Shader& shader, VertexArray
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-}
+}*/

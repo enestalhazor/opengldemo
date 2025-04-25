@@ -1,6 +1,6 @@
 #pragma once
 #include "shader.hpp"
-#include "vertex.hpp"
+#include "vertex_array.hpp"
 #include "texture.hpp"
 
 

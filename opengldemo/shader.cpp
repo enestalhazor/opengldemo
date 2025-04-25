@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "shader.hpp"
-#include "Light.hpp"
+#include <string>
 
 
 Shader::Shader(const char* filename)
@@ -105,11 +105,12 @@ void Shader::Uniform1v(const char* name, glm::vec3 uniform)
 	glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z);
 }
 
-void Shader::UniformLight(Light& light)
+void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos, int index)
 {
-	Uniform1v("light.ambient", light.Ambient);
-	Uniform1v("light.diffuse", light.Diffuse);
-	Uniform1v("light.specular", light.Specular);
+	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].ambient")).c_str(), ambient);
+	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].diffuse")).c_str(), diffuse);
+	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].specular")).c_str(), specular);
+	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].position")).c_str(), pos);
 }
 
 void Shader::Uniform3fv(const char* name, int count, const float* arr)

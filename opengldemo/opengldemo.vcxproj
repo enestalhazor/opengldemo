@@ -104,14 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\stb;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\glm-0.9.9.8;C:\Users\enest\Downloads\glad\include;C:\Users\enest\Downloads\glfw-3.4\glfw-3.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Assimp\include;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\stb;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\glm-0.9.9.8;C:\Users\enest\Downloads\glad\include;C:\Users\enest\Downloads\glfw-3.4\glfw-3.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\enest\Downloads\glfw-3.4\glfw-3.4\build\src\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\Assimp\bin\x64;C:\Users\enest\Downloads\glfw-3.4\glfw-3.4\build\src\Debug;C:\Program Files\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,39 +132,37 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Downloads\glad\src\glad.c" />
-    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="entity.cpp" />
-    <ClCompile Include="lightningdemo.cpp" />
-    <ClCompile Include="physical.cpp" />
+    <ClCompile Include="opengldemo2.cpp" />
     <ClCompile Include="opengldemo.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="rigid_body.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="vendor\stb\stb_image.cpp" />
-    <ClCompile Include="vertex.cpp" />
+    <ClCompile Include="vertex_array.cpp" />
     <ClCompile Include="vertex_data.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="1.colors.glsl" />
-    <None Include="1.light_cube.glsl" />
+    <None Include="1.model_loading.glsl" />
     <None Include="shader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bullet.hpp" />
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="entity.hpp" />
     <ClInclude Include="global.hpp" />
-    <ClInclude Include="light.hpp" />
     <ClInclude Include="material.hpp" />
-    <ClInclude Include="physical.hpp" />
+    <ClInclude Include="mesh.hpp" />
+    <ClInclude Include="model.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="rigid_body.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="texture.hpp" />
     <ClInclude Include="vendor\stb\stb_image.hpp" />
     <ClInclude Include="vertex.hpp" />
+    <ClInclude Include="vertex_array.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg" />

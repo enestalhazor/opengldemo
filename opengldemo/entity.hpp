@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "vertex.hpp"
+#include "vertex_array.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 
