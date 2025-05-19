@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "shader.hpp"
 #include <string>
+#include "glerror.hpp"
 
 
 Shader::Shader(const char* filename)
@@ -56,53 +57,53 @@ Shader::Shader(const char* filename)
 	}
 
 	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
+	GLError(glAttachShader(shaderProgram, vertexShader));
+	GLError(glAttachShader(shaderProgram, fragmentShader));
+	GLError(glLinkProgram(shaderProgram));
 
 	int success;
 	char infoLog[512];
 
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	GLError(glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success));
 	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		GLError(glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog));
 		std::cout << "shader program couldn't be linked\n" << infoLog << std::endl;
 	}
 
 	Bind();
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	GLError(glDeleteShader(vertexShader));
+	GLError(glDeleteShader(fragmentShader));
 }
 
 Shader::~Shader()
 {
-	glDeleteProgram(shaderProgram);
+	GLError(glDeleteProgram(shaderProgram));
 }
 
 void Shader::Bind() const
 {
-	glUseProgram(shaderProgram);
+	GLError(glUseProgram(shaderProgram));
 }
 
 void Shader::Uniform4f(const char* name, float f1, float f2, float f3, float f4)
 {
 	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
-	glUniform4f(vertexColorLocation, f1, f2, f3, f4);
+	GLError(glUniform4f(vertexColorLocation, f1, f2, f3, f4));
 }
 
 void Shader::Uniform3f(const char* name, float f1, float f2, float f3)
 {
 	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
-	glUniform3f(vertexColorLocation, f1, f2, f3);
+	GLError(glUniform3f(vertexColorLocation, f1, f2, f3));
 }
 
 void Shader::Uniform1v(const char* name, glm::vec3 uniform)
 {
 	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
-	glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z);
+	GLError(glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z));
 }
 
 void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos, int index)
@@ -117,28 +118,28 @@ void Shader::Uniform3fv(const char* name, int count, const float* arr)
 {
 	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
-	glUniform3fv(vertexColorLocation, count, arr);
+	GLError(glUniform3fv(vertexColorLocation, count, arr));
 }
 
 void Shader::Uniform1f(const char* name, float f)
 {
 	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
-	glUniform1f(vertexColorLocation, f);
+	GLError(glUniform1f(vertexColorLocation, f));
 }
 
 void Shader::Uniform1i(const char* name, int f)
 {
 	Bind();
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
-	glUniform1i(vertexColorLocation, f);
+	GLError(glUniform1i(vertexColorLocation, f));
 }
 
 void Shader::UniformMatrix4f(const char* name, glm::mat4 trans)
 {
 	Bind();
 	unsigned int transformLoc = glGetUniformLocation(shaderProgram, name);
-	glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+	GLError(glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans)));
 }
 
 
@@ -150,15 +151,15 @@ unsigned int Shader::CreateShader(const std::string& code, unsigned int shaderTy
 
 	int success;
 
-	glShaderSource(shader, 1, &str, NULL);
-	glCompileShader(shader);
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	GLError(glShaderSource(shader, 1, &str, NULL));
+	GLError(glCompileShader(shader));
+	GLError(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
 
 	if (!success)
 	{
-		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		GLError(glGetShaderInfoLog(shader, 512, NULL, infoLog));
 		std::cout << "shader compilation failed\n" << infoLog << std::endl;
-		glDeleteShader(shader);
+		GLError(glDeleteShader(shader));
 		return -1;
 	}
 	return shader;

@@ -19,6 +19,7 @@
 #include "material.hpp"
 #include "mesh.hpp"
 #include "model.hpp"
+#include "glerror.hpp"
 
 
 void framebuffer_size_callback1(GLFWwindow* window, int width, int height);
@@ -68,7 +69,7 @@ int main()
 		return -1;
 	}
 
-	glEnable(GL_DEPTH_TEST);
+	GLError(glEnable(GL_DEPTH_TEST));
 
 	Renderer render(cam);
 
@@ -84,8 +85,8 @@ int main()
 
 		processInput(window);
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GLError(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+		GLError(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		ourShader.Bind();
 
@@ -119,17 +120,17 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cam.MoveForward(deltaTime1 * 2.0f);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cam.MoveBackward(deltaTime1 * 2.0f);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		cam.MoveLeft(deltaTime1 * 2.0f);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cam.MoveBackward(deltaTime1 * 2.0f);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cam.MoveRight(deltaTime1 * 2.0f);
 }
 
 void framebuffer_size_callback1(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, width, height);
+	GLError(glViewport(0, 0, width, height));
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)

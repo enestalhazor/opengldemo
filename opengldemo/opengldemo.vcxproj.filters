@@ -51,6 +51,9 @@
     <ClCompile Include="opengldemo2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="glerror.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.glsl" />
@@ -95,6 +98,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vertex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glerror.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

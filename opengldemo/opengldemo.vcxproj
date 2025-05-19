@@ -134,6 +134,7 @@
     <ClCompile Include="..\..\..\..\Downloads\glad\src\glad.c" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="entity.cpp" />
+    <ClCompile Include="glerror.cpp" />
     <ClCompile Include="opengldemo2.cpp" />
     <ClCompile Include="opengldemo.cpp" />
     <ClCompile Include="renderer.cpp" />
@@ -152,10 +153,12 @@
   <ItemGroup>
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="entity.hpp" />
+    <ClInclude Include="glerror.hpp" />
     <ClInclude Include="global.hpp" />
     <ClInclude Include="material.hpp" />
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="model.hpp" />
+    <ClInclude Include="model2.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="rigid_body.hpp" />
     <ClInclude Include="shader.hpp" />

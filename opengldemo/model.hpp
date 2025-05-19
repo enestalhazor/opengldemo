@@ -18,8 +18,6 @@
 #include <map>
 #include <vector>
 
-unsigned int TextureFromFile(const char* path, const std::string& directory);
-
 class Model
 {
 public:
@@ -46,7 +44,7 @@ private:
 	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-		// check for errors
+
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
 		{
 			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -78,10 +76,9 @@ private:
 
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 	{
-		// data to fill
+		std::vector<Texture> textures;
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<Texture> textures;
 
 		// walk through each of the mesh's vertices
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -108,7 +105,7 @@ private:
 				vec.x = mesh->mTextureCoords[0][i].x;
 				vec.y = mesh->mTextureCoords[0][i].y;
 				vertex.TexCoords = vec;
-				//tanget
+				// tanget
 				vector.x = mesh->mTangents[i].x;
 				vector.y = mesh->mTangents[i].y;
 				vector.z = mesh->mTangents[i].z;

@@ -8,6 +8,7 @@
 #include "texture.hpp"
 #include "vertex.hpp"
 #include "vertex_array.hpp"
+#include "glerror.hpp"
 
 class Mesh
 {
@@ -49,7 +50,7 @@ public:
 		}
 
 		m_Va.Draw();
-		glActiveTexture(GL_TEXTURE0);
+		GLError(glActiveTexture(GL_TEXTURE0));
 	}
 
 };

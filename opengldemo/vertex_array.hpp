@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "vertex.hpp"
 
+
 class VertexArray
 {
 private:
@@ -18,6 +19,5 @@ public:
 	~VertexArray();
 
 	void Draw() const;
-
 	void Bind() const;
 };
