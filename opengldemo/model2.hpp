@@ -71,14 +71,17 @@ public:
 		std::vector<Texture> textures;
 		std::vector<Vertex> vertices;
 
-		Vertex vertex;
-		glm::vec3 vector;
 
-		for (int i = 0; i < mesh->mNumVertices; i++)
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
+			Vertex vertex;
+			glm::vec3 vector;
+
 			vector.x = mesh->mVertices[i].x;
 			vector.y = mesh->mVertices[i].y;
 			vector.z = mesh->mVertices[i].z;
+			vertex.Position = vector;
+
 			if (mesh->HasNormals())
 			{
 				vector.x = mesh->mNormals[i].x;
@@ -105,17 +108,17 @@ public:
 			}
 			else
 			{
-				vertex.TexCoords = glm::vec2(0.0f);
+				vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 			}
 
 			vertices.push_back(vertex);
 		}
 
-		for (int i = 0; i < mesh->mNumFaces; i++)
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 		{
 			aiFace face = mesh->mFaces[i];
 
-			for (int j = 0; j < face.mNumIndices; j++)
+			for (unsigned int j = 0; j < face.mNumIndices; j++)
 			{
 				indices.push_back(face.mIndices[j]);
 			}
@@ -145,10 +148,7 @@ public:
 			bool skip = false;
 			for (unsigned int j = 0; j < textures_loaded.size(); j++)
 			{
-				std::string s = textures_loaded[j].GetPath().data();
-				std::string s1 = str.C_Str();
-
-				if (s == s1)
+				if (std::string(textures_loaded[j].GetPath().data()) == std::string(str.C_Str()))
 				{
 					textures.push_back(textures_loaded[j]);
 					skip = true;

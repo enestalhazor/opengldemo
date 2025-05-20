@@ -18,7 +18,7 @@
 #include "global.hpp"
 #include "material.hpp"
 #include "mesh.hpp"
-#include "model.hpp"
+#include "model2.hpp"
 #include "glerror.hpp"
 
 
