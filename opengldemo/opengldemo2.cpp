@@ -40,6 +40,9 @@ static int frameCount = 0;
 
 static Camera cam(glm::vec3(0.0f, 0.0f, 3.0f));
 
+glm::vec4 lightPos(0.0f, 0.0f, 12.0f, 1.0f);
+glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+
 float ambientStrength = 0.1f;
 
 int main()
@@ -91,18 +94,25 @@ int main()
 		ourShader.Bind();
 
 		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
+		projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
 		ourShader.UniformMatrix4f("uProjection", projection);
 		ourShader.UniformMatrix4f("uView", cam.GetViewMatrix());
 
+		ourShader.UniformLight(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(12.0f, 0.0f, 0.0f));
+
+		ourShader.Uniform1v("objectColor", glm::vec3(1.0f));
+		ourShader.Uniform1v("viewPos", cam.GetPos());
+
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		ourShader.UniformMatrix4f("uModel", model);
-		ourShader.Uniform1i("texture_diffuse", 0);
+
+		//glm::mat4 rotate = glm::mat4(1.0f);
+		//rotate = glm::rotate(rotate, glm::radians(2.0f / 4.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//lightPos = rotate * lightPos;
 
 		ourModel.Draw(ourShader);
-
 
 		frameCount++;
 

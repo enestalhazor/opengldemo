@@ -106,12 +106,12 @@ void Shader::Uniform1v(const char* name, glm::vec3 uniform)
 	GLError(glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z));
 }
 
-void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos, int index)
+void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos)
 {
-	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].ambient")).c_str(), ambient);
-	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].diffuse")).c_str(), diffuse);
-	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].specular")).c_str(), specular);
-	Uniform1v((std::string("uLights[") + std::to_string(index) + std::string("].position")).c_str(), pos);
+	Uniform1v("light.ambient", ambient);
+	Uniform1v("light.diffuse", diffuse);
+	Uniform1v("light.specular", specular);
+	Uniform1v("light.position", pos);
 }
 
 void Shader::Uniform3fv(const char* name, int count, const float* arr)
