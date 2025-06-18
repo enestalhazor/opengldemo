@@ -137,6 +137,8 @@
     <ClCompile Include="glerror.cpp" />
     <ClCompile Include="opengldemo2.cpp" />
     <ClCompile Include="opengldemo.cpp" />
+    <ClCompile Include="opengldemo3.cpp" />
+    <ClCompile Include="opengldemo4.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="rigid_body.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -147,7 +149,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="1.colors.glsl" />
-    <None Include="1.model_loading.glsl" />
+    <None Include="lightshader.glsl" />
+    <None Include="pointshadow.glsl" />
+    <None Include="pointshadow_depth.glsl" />
+    <None Include="shadow.glsl" />
+    <None Include="shadowmaprender.glsl" />
+    <None Include="shadowmap.glsl" />
     <None Include="shader.glsl" />
   </ItemGroup>
   <ItemGroup>
@@ -168,7 +175,7 @@
     <ClInclude Include="vertex_array.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg" />
+    <Text Include="howtodebug.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,6 +6,12 @@
 
 VertexArray::VertexArray(Vertex* vertices, unsigned int* indices, size_t count, size_t vertexSize, size_t indexCount) : indexCount(indexCount)
 {
+	std::cout << "VertexArray created!" << std::endl;
+	std::cout << "Count: " << count << std::endl;
+	std::cout << "Vertex size: " << vertexSize << std::endl;
+	std::cout << "Index count: " << indexCount << std::endl;
+	std::cout << std::endl;
+	
 	GLError(glGenVertexArrays(1, &VAO));
 	GLError(glGenBuffers(1, &VBO));
 	GLError(glGenBuffers(1, &EBO));
@@ -38,10 +44,11 @@ VertexArray::VertexArray(Vertex* vertices, unsigned int* indices, size_t count, 
 
 VertexArray::~VertexArray()
 {
+	// std::cout << "VertexArray destroyed!" << std::endl;
 	// to do later
-	//glDeleteBuffers(1, &VBO);
-	//glDeleteVertexArrays(1, &VAO);
-	//glDeleteBuffers(1, &EBO);
+	// glDeleteBuffers(1, &VBO);
+	// glDeleteVertexArrays(1, &VAO);
+	// glDeleteBuffers(1, &EBO);
 }
 
 void VertexArray::Draw() const
@@ -52,6 +59,7 @@ void VertexArray::Draw() const
 
 void VertexArray::Bind() const
 {
+	// std::cout << "VertexArray binded." << std::endl;
 	GLError(glBindVertexArray(VAO));
 	GLError(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 	GLError(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));

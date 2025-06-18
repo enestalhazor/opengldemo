@@ -30,11 +30,14 @@ public:
 		loadModel(path);
 	}
 
-	void Draw(Shader& shader)
+	void Draw(Shader& shader, int depthMap)
 	{
 		for (unsigned int i = 0; i < meshes.size(); i++)
 		{
-			meshes[i].Draw(shader);
+			// if depth map is exist send as a value 1
+			// or using for the shadowing send as a value 2
+			// or not send as a value 0. 
+			meshes[i].Draw(shader, depthMap);
 		}
 	}
 

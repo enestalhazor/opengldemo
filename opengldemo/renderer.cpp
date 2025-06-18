@@ -1,11 +1,21 @@
 #include "renderer.hpp"
+#include "glm/gtx/string_cast.hpp",
+#define GLM_ENABLE_EXPERIMENTAL
+
 
 Renderer::Renderer(const Camera& cam) : m_Cam(cam)
 {
+	std::cout << "Renderer created!" << std::endl;
+	std::cout << "Renderer Camera id: " << cam.GetId() << std::endl;
+	std::cout << std::endl;
 }
 
 void Renderer::Render(const VertexArray& v, Shader& s, const Texture& t, const glm::mat4& model, const glm::vec4& color)
 {
+	std::cout << "VertexArray, Shader, Texture binded." << std::endl;
+	std::cout << "Renderer Uniform mat4 uModel: " << glm::to_string(model) << std::endl;
+	std::cout << "Renderer Uniform vec3 uColor: " << glm::to_string(color) << std::endl;
+
 	v.Bind();
 	s.Bind();
 	t.Bind();
@@ -24,6 +34,10 @@ void Renderer::Render(const VertexArray& v, Shader& s, const Texture& t, const g
 
 void Renderer::Render(const VertexArray& v, Shader& s, glm::mat4 model, glm::vec3 color, glm::vec3 lightColor)
 {
+	std::cout << "VertexArray, Shader, Texture binded." << std::endl;
+	std::cout << "Renderer Uniform mat4 uModel: " << glm::to_string(model) << std::endl;
+	std::cout << "Renderer Uniform vec3 uColor: " << glm::to_string(color) << std::endl;
+	std::cout << "Renderer Uniform vec3 uLightColor: " << glm::to_string(lightColor) << std::endl;
 	v.Bind();
 	s.Bind();
 

@@ -54,11 +54,22 @@
     <ClCompile Include="glerror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="opengldemo3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opengldemo4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.glsl" />
     <None Include="1.colors.glsl" />
-    <None Include="1.model_loading.glsl" />
+    <None Include="shadow.glsl" />
+    <None Include="shadowmaprender.glsl" />
+    <None Include="shadowmap.glsl" />
+    <None Include="pointshadow_depth.glsl" />
+    <None Include="pointshadow.glsl" />
+    <None Include="lightshader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.hpp">
@@ -108,8 +119,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <Text Include="howtodebug.txt" />
   </ItemGroup>
 </Project>

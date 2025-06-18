@@ -8,10 +8,14 @@
 
 Texture::Texture(std::string path, std::string directory, std::string type) : m_Path(path), m_Type(type)
 {
+	//std::cout << "Texture created!" << std::endl;
+	//std::cout << "Texture path: " << directory << "/" << path << std::endl;
+	//std::cout << "Texture type: " << m_Type << std::endl;
+	//std::cout << std::endl;
+
 	stbi_set_flip_vertically_on_load(true);
 
-	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
+	std::string filename = directory + '/' + path;
 
 	GLError(glGenTextures(1, &m_Id));
 
@@ -45,8 +49,50 @@ Texture::Texture(std::string path, std::string directory, std::string type) : m_
 
 }
 
+Texture::Texture(const unsigned int width, const unsigned int height)
+{
+	glGenFramebuffers(1, &FBO);
+
+	GLError(glGenTextures(1, &m_Id));
+	GLError(glBindTexture(GL_TEXTURE_2D, m_Id));
+	GLError(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+
+	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+	GLError(glBindFramebuffer(GL_FRAMEBUFFER, FBO));
+	GLError(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_Id, 0));
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+Texture::Texture(const unsigned int cubemapwidth, const unsigned int cubemapheight, unsigned int& CubeMap)
+{
+	glGenFramebuffers(1, &FBO);
+	glGenTextures(1, &CubeMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap);
+	for (unsigned int i = 0; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, cubemapwidth, cubemapheight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, CubeMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Texture::Bind() const
 {
+	// std::cout << "Texture binded." << std::endl;
 	Bind(0);
 }
 
@@ -56,6 +102,12 @@ void Texture::Bind(unsigned int slot) const
 	GLError(glBindTexture(GL_TEXTURE_2D, m_Id));
 }
 
+void Texture::BindCubeMap(unsigned int slot, unsigned int CubeMap) const
+{
+	GLError(glActiveTexture(GL_TEXTURE0 + slot));
+	GLError(glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap));
+}
+
 std::string Texture::GetPath()
 {
 	return m_Path;
@@ -63,9 +115,20 @@ std::string Texture::GetPath()
 
 std::string Texture::GetType()
 {
+	// std::cout << std::endl;
+
 	return m_Type;
 }
 
+unsigned int Texture::GetFBO()
+{
+	return FBO;
+}
+
+unsigned int Texture::GetId()
+{
+	return m_Id;
+}
 
 
 

@@ -1,3 +1,4 @@
+/*
 #define _CRT_SECURE_NO_WARNINGS
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -98,7 +99,7 @@ int main()
 		ourShader.UniformMatrix4f("uProjection", projection);
 		ourShader.UniformMatrix4f("uView", cam.GetViewMatrix());
 
-		ourShader.UniformLight(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(12.0f, 0.0f, 0.0f));
+		ourShader.UniformLight(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(4.0f, 0.0f, 0.0f));
 
 		ourShader.Uniform1v("objectColor", glm::vec3(1.0f));
 		ourShader.Uniform1v("viewPos", cam.GetPos());
@@ -167,4 +168,4 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-}
+}*/

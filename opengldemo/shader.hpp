@@ -15,7 +15,7 @@ private:
 public:
 	unsigned int shaderProgram;
 
-	Shader(const char* filename);
+	Shader(const char* filename, bool cubeMap);
 
 	~Shader();
 
@@ -33,7 +33,7 @@ public:
 
 	void Uniform1f(const char* name, float f);
 
-	void UniformMatrix4f(const char *name, glm::mat4 trans);
+	void UniformMatrix4f(const std::string& name, glm::mat4 trans);
 
 	void Bind() const;
 

@@ -2,11 +2,18 @@
 #include "shader.hpp"
 #include <string>
 #include "glerror.hpp"
+#include "glm/gtx/string_cast.hpp",
 
+#define GLM_ENABLE_EXPERIMENTAL
 
-Shader::Shader(const char* filename)
+Shader::Shader(const char* filename, bool cubeMap)
 {
+	std::cout << "Shader created!" << std::endl;
+	std::cout << "Glsl file used by the Shader: " << filename << std::endl;
+	std::cout << std::endl;
+
 	std::string vertexShaderCode;
+	std::string geometryShaderCode;
 	std::string fragmentShaderCode;
 
 	FILE* f = fopen(filename, "r");
@@ -17,8 +24,23 @@ Shader::Shader(const char* filename)
 	{
 		if (strcmp(buffer, "-----\n") == 0)
 		{
-			state = 1;
-			continue;
+
+			if (cubeMap)
+			{
+				if (state == 1)
+				{
+					state = 2;
+					continue;
+				}
+
+				state = 1;
+				continue;
+			}
+			else
+			{
+				state = 2;
+				continue;
+			}
 		}
 
 		switch (state)
@@ -27,9 +49,10 @@ Shader::Shader(const char* filename)
 			vertexShaderCode += buffer;
 			break;
 		case 1:
-			fragmentShaderCode += buffer;
+			geometryShaderCode += buffer;
 			break;
-
+		case 2:
+			fragmentShaderCode += buffer;
 
 		default:
 			break;
@@ -38,15 +61,25 @@ Shader::Shader(const char* filename)
 	}
 	fclose(f);
 
-
-	unsigned int fragmentShader;
 	unsigned int vertexShader;
+	unsigned int geometryShader;
+	unsigned int fragmentShader;
 
 	vertexShader = CreateShader(vertexShaderCode, GL_VERTEX_SHADER);
 
 	if (vertexShader == -1)
 	{
 		return;
+	}
+
+	if (cubeMap)
+	{
+		geometryShader = CreateShader(geometryShaderCode, GL_GEOMETRY_SHADER);
+
+		if (geometryShader == -1)
+		{
+			return;
+		}
 	}
 
 	fragmentShader = CreateShader(fragmentShaderCode, GL_FRAGMENT_SHADER);
@@ -58,6 +91,10 @@ Shader::Shader(const char* filename)
 
 	shaderProgram = glCreateProgram();
 	GLError(glAttachShader(shaderProgram, vertexShader));
+	if (cubeMap)
+	{
+		GLError(glAttachShader(shaderProgram, geometryShader));
+	}
 	GLError(glAttachShader(shaderProgram, fragmentShader));
 	GLError(glLinkProgram(shaderProgram));
 
@@ -72,29 +109,44 @@ Shader::Shader(const char* filename)
 
 	Bind();
 	GLError(glDeleteShader(vertexShader));
+	if (cubeMap)
+	{
+		GLError(glDeleteShader(geometryShader));
+	}
 	GLError(glDeleteShader(fragmentShader));
 }
 
 Shader::~Shader()
 {
+	std::cout << "Shader destroyed!" << std::endl;
 	GLError(glDeleteProgram(shaderProgram));
 }
 
 void Shader::Bind() const
 {
+	//std::cout << "Shader binded" << std::endl;
 	GLError(glUseProgram(shaderProgram));
 }
 
 void Shader::Uniform4f(const char* name, float f1, float f2, float f3, float f4)
 {
 	Bind();
+	//std::cout << "Uniform4f sent." << std::endl;
+	//std::cout << "Uniform4f name: " << name << std::endl;
+	//std::cout << name << "values: " << f1 << f2 << f3 << f4 << std::endl;
+
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform4f(vertexColorLocation, f1, f2, f3, f4));
 }
 
 void Shader::Uniform3f(const char* name, float f1, float f2, float f3)
 {
+
 	Bind();
+	//std::cout << "Uniform3f sent." << std::endl;
+	//std::cout << "Uniform3f name: " << name << std::endl;
+	//std::cout << name << "values: " << f1 << f2 << f3 << std::endl;
+
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform3f(vertexColorLocation, f1, f2, f3));
 }
@@ -102,12 +154,18 @@ void Shader::Uniform3f(const char* name, float f1, float f2, float f3)
 void Shader::Uniform1v(const char* name, glm::vec3 uniform)
 {
 	Bind();
+	//std::cout << "Uniform1v sent." << std::endl;
+	//std::cout << "Uniform1v name: " << name << std::endl;
+	//std::cout << name << "vector: " << glm::to_string(uniform) << std::endl;
+
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z));
 }
 
 void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos)
 {
+	// std::cout << "UniformLight sent." << std::endl;
+
 	Uniform1v("light.ambient", ambient);
 	Uniform1v("light.diffuse", diffuse);
 	Uniform1v("light.specular", specular);
@@ -117,6 +175,10 @@ void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specul
 void Shader::Uniform3fv(const char* name, int count, const float* arr)
 {
 	Bind();
+	// std::cout << "Uniform3fv sent." << std::endl;
+	// std::cout << "Uniform3fv name: " << name << std::endl;
+	// std::cout << name << "count: " << count << std::endl;
+
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform3fv(vertexColorLocation, count, arr));
 }
@@ -124,6 +186,10 @@ void Shader::Uniform3fv(const char* name, int count, const float* arr)
 void Shader::Uniform1f(const char* name, float f)
 {
 	Bind();
+	//std::cout << "Uniform1v sent." << std::endl;
+	//std::cout << "Uniform1v name: " << name << std::endl;
+	//std::cout << name << "value: " << f << std::endl;
+
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform1f(vertexColorLocation, f));
 }
@@ -131,14 +197,22 @@ void Shader::Uniform1f(const char* name, float f)
 void Shader::Uniform1i(const char* name, int f)
 {
 	Bind();
+	//std::cout << "Uniform1v sent." << std::endl;
+	//std::cout << "Uniform1v name: " << name << std::endl;
+	//std::cout << name << "value: " << f << std::endl;
+
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform1i(vertexColorLocation, f));
 }
 
-void Shader::UniformMatrix4f(const char* name, glm::mat4 trans)
+void Shader::UniformMatrix4f(const std::string& name, glm::mat4 trans)
 {
 	Bind();
-	unsigned int transformLoc = glGetUniformLocation(shaderProgram, name);
+	// std::cout << "UniformMatrix4f sent." << std::endl;
+	// std::cout << "UniformMatrix4f name: " << name << std::endl;
+	// std::cout << name << "vector: " << glm::to_string(trans) << std::endl;
+
+	unsigned int transformLoc = glGetUniformLocation(shaderProgram, name.c_str());
 	GLError(glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans)));
 }
 

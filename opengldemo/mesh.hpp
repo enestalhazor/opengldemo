@@ -1,8 +1,5 @@
 #pragma once
 #include <vector>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include "glm/glm.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
@@ -25,28 +22,37 @@ public:
 	{
 	}
 
-	void Draw(Shader& shader)
+	void Draw(Shader& shader, int depthMap)
 	{
 		unsigned int diffuseNr = 1;
 		unsigned int specularNr = 1;
 		unsigned int normalNr = 1;
 		unsigned int heightNr = 1;
-		for (unsigned int i = 0; i < m_Textures.size(); i++)
+
+		if (depthMap == 1)
 		{
-			std::string number;
-			std::string name = m_Textures[i].GetType();
+		}
+		else 
+		{
 
-			if (name == "texture_diffuse")
-				number = std::to_string(diffuseNr++);
-			else if (name == "texture_specular")
-				number = std::to_string(specularNr++);
-			else if (name == "texture_normal")
-				number = std::to_string(normalNr++);
-			else if (name == "texture_height")
-				number = std::to_string(heightNr++);
+			for (unsigned int i = 0; i < m_Textures.size(); i++)
+			{
+				std::string number;
+				std::string name = m_Textures[i].GetType();
 
-			shader.Uniform1i(("material." + name + number).c_str(), i);
-			m_Textures[i].Bind(i);
+				if (name == "texture_diffuse")
+					number = std::to_string(diffuseNr++);
+				else if (name == "texture_specular")
+					number = std::to_string(specularNr++);
+				else if (name == "texture_normal")
+					number = std::to_string(normalNr++);
+				else if (name == "texture_height")
+					number = std::to_string(heightNr++);
+
+				shader.Uniform1i(("material." + name + number).c_str(), i);
+				m_Textures[i].Bind(i);
+			}
+
 		}
 
 		m_Va.Draw();

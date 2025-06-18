@@ -1,0 +1,6 @@
+* use the debugger or print statements and do the following 
+1. starting from the main function, check if all the parameters passed to constructors, functions, methods, etc. correctly.
+2. in opengl applications it is crucial to check if all the opengl functions (Functions starting with gl) are used properly.
+3. check if all the variables (int, char etc.) and struct variables are initiliased correctly.
+4. check shader errors.
+5. if the issue cannot be resolved by following the steps above, try implementing the simplest version of the application then build on top of it incrementaly.

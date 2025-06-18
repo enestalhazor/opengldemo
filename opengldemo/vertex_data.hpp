@@ -1,15 +1,16 @@
 #pragma once
 
-static float groundVertices[] = {
--5.0f, -5.0f, 0.0f,  0.0f, 0.0f,
-5.0f, -5.0f, 0.0f,  1.0f, 0.0f,
-5.0f,  5.0f, 0.0f,  1.0f, 1.0f,
-5.0f,  5.0f,  0.0f,  1.0f, 1.0f,
--5.0f,  5.0f,  0.0f,  0.0f, 1.0f,
--5.0f, -5.0f,  0.0f,  0.0f, 0.0f,
+static float d_groundVertices[] = {
+	10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f,
+	-10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+	-10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
+	 10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f,
+	-10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
+	 10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,  10.0f, 10.0f 
 };
 
-static float boxVertices[] = {
+
+static float d_boxVertices[] = {
  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
  0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,
  0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,
@@ -53,7 +54,3 @@ static float boxVertices[] = {
  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0.0f,  1.0f,  0.0f,
 };
 
-static unsigned int indices[] = {
-0, 1, 3,
-1, 2, 3
-};
