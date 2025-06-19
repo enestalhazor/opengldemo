@@ -22,18 +22,12 @@ public:
 	{
 	}
 
-	void Draw(Shader& shader, int depthMap)
+	void Draw(Shader& shader)
 	{
 		unsigned int diffuseNr = 1;
 		unsigned int specularNr = 1;
 		unsigned int normalNr = 1;
 		unsigned int heightNr = 1;
-
-		if (depthMap == 1)
-		{
-		}
-		else 
-		{
 
 			for (unsigned int i = 0; i < m_Textures.size(); i++)
 			{
@@ -52,8 +46,6 @@ public:
 				shader.Uniform1i(("material." + name + number).c_str(), i);
 				m_Textures[i].Bind(i);
 			}
-
-		}
 
 		m_Va.Draw();
 		GLError(glActiveTexture(GL_TEXTURE0));

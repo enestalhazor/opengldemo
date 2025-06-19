@@ -42,9 +42,6 @@
     <ClCompile Include="vertex_data.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rigid_body.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,6 +55,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="opengldemo4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shadowmap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="physicalentity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -90,9 +96,6 @@
     <ClInclude Include="renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rigid_body.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="entity.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -115,6 +118,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="glerror.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cubemap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shadowmap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physicalentity.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

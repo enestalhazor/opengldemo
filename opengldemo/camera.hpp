@@ -6,9 +6,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "rigid_body.hpp"
+#include "entity.hpp"
 
-class Camera : public RigidBody
+class Camera : public Entity
 {
 public:
 

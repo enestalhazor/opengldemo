@@ -20,16 +20,17 @@
 #include "mesh.hpp"
 #include "model.hpp"
 #include "glerror.hpp"
+#include "cubemap.hpp"
+#include "physicalentity.hpp"
 
 void pushTransforms(glm::vec3 lightPos, glm::mat4 shadowProjection, std::vector<glm::mat4>& shadowTransforms, glm::vec3 v1, glm::vec3 v2);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, PhysicalEntity& light);
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
-unsigned int CubeMap;
 
 const unsigned int SHADOW_WIDTH = 1024 * 4;
 const unsigned int SHADOW_HEIGHT = 1024 * 4;
@@ -50,7 +51,6 @@ float far_plane = 25.0f;
 
 static Camera cam(glm::vec3(0.0f, 0.0f, 3.0f));
 
-glm::vec3 lightPos(0.0f, 0.0f, 2.0f);
 glm::vec3 lightDiffuse(1.0f, 1.0f, 1.0f);
 
 
@@ -89,7 +89,8 @@ int main()
 	Shader lightShader("lightshader.glsl", false);
 	Shader cubeMapShader("pointshadow_depth.glsl", true);
 
-	Texture cubeMap(SHADOW_WIDTH, SHADOW_HEIGHT, CubeMap);
+	CubeMap cubeMap(SHADOW_WIDTH, SHADOW_HEIGHT, near_plane, far_plane);
+	// Texture cubeMap(SHADOW_WIDTH, SHADOW_HEIGHT, CubeMap);
 	Texture floorDiffuse("wood.png", "mytextures", "texture_diffuse");
 	Texture floorSpecular("wood.png", "mytextures", "texture_specular");
 
@@ -114,7 +115,7 @@ int main()
 					{glm::vec3(-1.0f, 0.0f, -1.0f),glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)} };
 
 	VertexArray vA(v, d_indices, 4, sizeof(Vertex), 6);
-	Model backpack("backpack/backpack.obj");
+	Model backpackModel("backpack/backpack.obj");
 
 	textures.emplace_back(floorDiffuse);
 	textures.emplace_back(floorSpecular);
@@ -129,7 +130,18 @@ int main()
 		indices.emplace_back(d_indices[i]);
 	}
 
+	std::vector<Mesh> meshes;
 	Mesh mesh(vertices, indices, textures);
+	meshes.push_back(mesh);
+
+	PhysicalEntity floor(meshes, glm::vec3(0.0f, -2.0f, 0.0f));
+	floor.SetScale(glm::vec3(5.0f));
+	PhysicalEntity backpack(backpackModel.meshes);
+	backpack.SetSpeed(glm::vec3(0.0f, 0.005f, 0.0f));
+	PhysicalEntity light(meshes, glm::vec3(0.0f, 0.0f, 2.0f));
+	light.SetScale(glm::vec3(0.2f));
+	PhysicalEntity hat(meshes, light.GetPos() - glm::vec3(0.0f, 0.2f, 0.0f));
+	hat.SetScale(glm::vec3(0.4f));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -137,55 +149,21 @@ int main()
 		deltaTime1 = currentFrame - lastFrame1;
 		lastFrame1 = currentFrame;
 
-		processInput(window);
+		processInput(window, light);
 
 		GLError(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 		GLError(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-
-		glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
-
-		std::vector<glm::mat4> shadowTransforms;
-
-		pushTransforms(lightPos, shadowProjection, shadowTransforms, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-		pushTransforms(lightPos, shadowProjection, shadowTransforms, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-		pushTransforms(lightPos, shadowProjection, shadowTransforms, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		pushTransforms(lightPos, shadowProjection, shadowTransforms, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-		pushTransforms(lightPos, shadowProjection, shadowTransforms, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-		pushTransforms(lightPos, shadowProjection, shadowTransforms, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-
-		glm::mat4 model = glm::mat4(1.0f);
-
 		// 1.
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, cubeMap.GetFBO());
-		glClear(GL_DEPTH_BUFFER_BIT);
-		cubeMapShader.Bind();
+		cubeMap.ConfigureShader(cubeMapShader, light.GetPos());
+		cubeMap.BindFrameBuffer();
 
-		for (unsigned int i = 0; i < 6; ++i)
-		{
-			cubeMapShader.UniformMatrix4f("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-		}
+		floor.Draw(cubeMapShader);
+		hat.SetPos(light.GetPos() - glm::vec3(0.0f, 0.2f, 0.0f));
+		hat.Draw(cubeMapShader);
+		backpack.Draw(cubeMapShader);
 
-		cubeMapShader.Uniform1f("far_plane", far_plane);
-		cubeMapShader.Uniform1v("lightPos", lightPos);
-
-		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
-		cubeMapShader.UniformMatrix4f("uModel", model);
-		mesh.Draw(cubeMapShader, 1);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos + glm::vec3(0.0f, -0.2f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		cubeMapShader.UniformMatrix4f("uModel", model);
-		mesh.Draw(cubeMapShader, 1);
-
-		model = glm::mat4(1.0f);
-		cubeMapShader.UniformMatrix4f("uModel", model);
-		backpack.Draw(cubeMapShader, 1);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		cubeMap.UnbindFrameBuffer();
 
 		// 2.
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -197,43 +175,19 @@ int main()
 		ourShader3.UniformMatrix4f("uProjection", projection);
 		ourShader3.UniformMatrix4f("uView", cam.GetViewMatrix());
 		ourShader3.Uniform1v("viewPos", cam.GetPos());
-		ourShader3.UniformLight(glm::vec3(0.3f, 0.3f, 0.3f), lightDiffuse, glm::vec3(1.0f, 1.0f, 1.0f), lightPos);
+		ourShader3.UniformLight(glm::vec3(0.3f, 0.3f, 0.3f), lightDiffuse, glm::vec3(1.0f, 1.0f, 1.0f), light.GetPos());
 		ourShader3.Uniform1f("far_plane", far_plane);
 
-		cubeMap.BindCubeMap(5, CubeMap);
+		cubeMap.BindTexture(5);
 		ourShader3.Uniform1i("depthMap", 5);
 
-		// floor
-		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
-		ourShader3.UniformMatrix4f("uModel", model);
-		mesh.Draw(ourShader3, 0);
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos + glm::vec3(0.0f, -0.2f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		ourShader3.UniformMatrix4f("uModel", model);
-		mesh.Draw(ourShader3, 0);
-
-		// light
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		lightShader.UniformMatrix4f("uModel", model);
-		lightShader.UniformMatrix4f("uProjection", projection);
-		lightShader.UniformMatrix4f("uView", cam.GetViewMatrix());
-		mesh.Draw(lightShader, 0);
-
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		lightShader.UniformMatrix4f("uModel", model);
-		mesh.Draw(lightShader, 0);
-
-		// backpack
-		model = glm::mat4(1.0f);
-		ourShader3.UniformMatrix4f("uModel", model);
-		backpack.Draw(ourShader3, 0);
+		floor.Draw(ourShader3);
+		hat.Draw(ourShader3);
+		light.Draw(ourShader3);
+		backpack.Draw(ourShader3);
 
 		frameCount++;
+		backpack.Move();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -243,12 +197,7 @@ int main()
 	return 0;
 }
 
-void pushTransforms(glm::vec3 lightPos, glm::mat4 shadowProjection, std::vector<glm::mat4>& shadowTransforms, glm::vec3 v1, glm::vec3 v2)
-{
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + v1, v2));
-}
-
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, PhysicalEntity& light)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -262,17 +211,17 @@ void processInput(GLFWwindow* window)
 		cam.MoveRight(deltaTime1 * 2.0f);
 
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		lightPos.z -= 0.05f;
+		light.SetPos(light.GetPos() - glm::vec3(0.0f, 0.0f, 0.05f));
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		lightPos.z += 0.05f;
+		light.SetPos(light.GetPos() + glm::vec3(0.0f, 0.0f, 0.05f));
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		lightPos.x += 0.05f;
+		light.SetPos(light.GetPos() + glm::vec3(0.05f, 0.0f, 0.0f));
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		lightPos.x -= 0.05f;
+		light.SetPos(light.GetPos() - glm::vec3(0.05f, 0.0f, 0.0f));
 	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-		lightPos.y += 0.05f;
+		light.SetPos(light.GetPos() + glm::vec3(0.0f, 0.05f, 0.0f));
 	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-		lightPos.y -= 0.05f;
+		light.SetPos(light.GetPos() - glm::vec3(0.0f, 0.05f, 0.0f));
 
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
 		lightDiffuse.r += 0.01f;
@@ -280,7 +229,6 @@ void processInput(GLFWwindow* window)
 		lightDiffuse.g += 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
 		lightDiffuse.b += 0.01f;
-
 	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
 		lightDiffuse.r -= 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)

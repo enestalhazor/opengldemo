@@ -49,47 +49,6 @@ Texture::Texture(std::string path, std::string directory, std::string type) : m_
 
 }
 
-Texture::Texture(const unsigned int width, const unsigned int height)
-{
-	glGenFramebuffers(1, &FBO);
-
-	GLError(glGenTextures(1, &m_Id));
-	GLError(glBindTexture(GL_TEXTURE_2D, m_Id));
-	GLError(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
-
-	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	GLError(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-
-	GLError(glBindFramebuffer(GL_FRAMEBUFFER, FBO));
-	GLError(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_Id, 0));
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-Texture::Texture(const unsigned int cubemapwidth, const unsigned int cubemapheight, unsigned int& CubeMap)
-{
-	glGenFramebuffers(1, &FBO);
-	glGenTextures(1, &CubeMap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap);
-	for (unsigned int i = 0; i < 6; ++i)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, cubemapwidth, cubemapheight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, CubeMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void Texture::Bind() const
 {
 	// std::cout << "Texture binded." << std::endl;
@@ -100,12 +59,6 @@ void Texture::Bind(unsigned int slot) const
 {
 	GLError(glActiveTexture(GL_TEXTURE0 + slot));
 	GLError(glBindTexture(GL_TEXTURE_2D, m_Id));
-}
-
-void Texture::BindCubeMap(unsigned int slot, unsigned int CubeMap) const
-{
-	GLError(glActiveTexture(GL_TEXTURE0 + slot));
-	GLError(glBindTexture(GL_TEXTURE_CUBE_MAP, CubeMap));
 }
 
 std::string Texture::GetPath()

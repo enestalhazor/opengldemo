@@ -6,7 +6,7 @@ Camera::Camera() : Camera(glm::vec3(0.0f))
 
 }
 
-Camera::Camera(glm::vec3 pos) : RigidBody(pos, glm::vec3(2.0f, 5.0f, 2.0f))
+Camera::Camera(glm::vec3 pos) : Entity(pos)
 {
 
 }
