@@ -5,7 +5,7 @@
 class PhysicalEntity : public Entity
 {
 private:
-	std::vector<Mesh>& mMeshes;
+	std::vector<Mesh>& m_Meshes;
 	
 public:
 

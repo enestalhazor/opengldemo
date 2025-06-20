@@ -9,12 +9,12 @@
 class CubeMap
 {
 private:
-	unsigned int mId;
-	unsigned int mFBO;
-	unsigned int mWidth;
-	unsigned int mHeight;
-	float mNearPlane;
-	float mFarPlane;
+	unsigned int m_Id;
+	unsigned int m_FBO;
+	unsigned int m_Width;
+	unsigned int m_Height;
+	float m_NearPlane;
+	float m_FarPlane;
 
 public:
 	CubeMap(unsigned int width, unsigned height, float nearPlane, float farPlane);

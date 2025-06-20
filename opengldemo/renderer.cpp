@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "glm/gtx/string_cast.hpp",
+#include "glm/gtx/string_cast.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
 

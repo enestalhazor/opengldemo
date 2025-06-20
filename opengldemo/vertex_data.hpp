@@ -1,4 +1,5 @@
 #pragma once
+#include "vertex.hpp"
 
 static float d_groundVertices[] = {
 	10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,  10.0f,  0.0f,
@@ -53,4 +54,3 @@ static float d_boxVertices[] = {
  -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
  -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   0.0f,  1.0f,  0.0f,
 };
-

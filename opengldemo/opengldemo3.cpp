@@ -144,7 +144,6 @@ int main()
 		GLError(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 		GLError(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		glm::mat4 model = glm::mat4(1.0f);
 
 		glm::mat4 lightProjection;
 		glm::mat4 lightView;
@@ -162,16 +161,17 @@ int main()
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glCullFace(GL_FRONT);
 
+		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 		ourShader.UniformMatrix4f("uModel", model);
 
-		mesh.Draw(ourShader, 0);
+		mesh.Draw(ourShader);
 
 		model = glm::mat4(1.0f);
 		ourShader.UniformMatrix4f("uModel", model);
 
-		backpack.Draw(ourShader, 1);
+		backpack.Draw(ourShader);
 
 		glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -195,7 +195,7 @@ int main()
 		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 		ourShader3.UniformMatrix4f("uModel", model);
-		mesh.Draw(ourShader3, 0);
+		mesh.Draw(ourShader3);
 
 		model = glm::mat4(1.0f);
 
@@ -203,12 +203,12 @@ int main()
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		ourShader3.UniformMatrix4f("uModel", model);
 
-		mesh.Draw(ourShader3, 0);
+		mesh.Draw(ourShader3);
 
 		model = glm::mat4(1.0f);
 		ourShader3.UniformMatrix4f("uModel", model);
 
-		backpack.Draw(ourShader3, 0);
+		backpack.Draw(ourShader3);
 		frameCount++;
 
 		glfwSwapBuffers(window);

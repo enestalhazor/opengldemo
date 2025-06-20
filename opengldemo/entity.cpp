@@ -81,11 +81,13 @@ void Entity::SetPos(glm::vec3 pos)
 void Entity::SetYaw(float yaw)
 {
 	m_Yaw = yaw;
+	calculateDirection();
 }
 
 void Entity::SetPitch(float pitch)
 {
 	m_Pitch = pitch;
+	calculateDirection();
 }
 
 

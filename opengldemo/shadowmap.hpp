@@ -4,19 +4,26 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.hpp>
 #include "glerror.hpp"
+#include "shader.hpp"
 
 class ShadowMap
 {
 private:
-	unsigned int mId;
-	unsigned int mFBO;
-	unsigned int mWidth;
-	unsigned int mHeight;
+	unsigned int m_Id;
+	unsigned int m_FBO;
+	unsigned int m_Width;
+	unsigned int m_Height;
+	float m_NearPlane;
+	float m_FarPlane;
+	glm::mat4 lightSpaceMatrix;
 
 public:
 
-	ShadowMap(const unsigned int width, const unsigned int height);
-	void Bind() const;
-	void Unbind() const;
+	ShadowMap(const unsigned int width, const unsigned int height, float nearPlane, float farPlane);
+	void BindFrameBuffer() const;
+	void UnbindFrameBuffer() const;
+	void BindTexture(unsigned int slot) const;
+	void ConfigureShader(Shader& shader, glm::vec3 lightPos);
+	glm::mat4 GetLightSpaceMatrix();
 
 };

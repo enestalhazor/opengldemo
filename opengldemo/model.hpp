@@ -21,9 +21,9 @@
 class Model
 {
 public:
-	std::vector<Mesh> meshes;
-	std::string directory;
-	std::vector<Texture> textures_loaded;
+	std::vector<Mesh> m_Meshes;
+	std::string m_Directory;
+	std::vector<Texture> m_Textures_loaded;
 
 	Model(const std::string path)
 	{
@@ -32,9 +32,9 @@ public:
 
 	void Draw(Shader& shader)
 	{
-		for (unsigned int i = 0; i < meshes.size(); i++)
+		for (unsigned int i = 0; i < m_Meshes.size(); i++)
 		{
-			meshes[i].Draw(shader);
+			m_Meshes[i].Draw(shader);
 		}
 	}
 
@@ -51,7 +51,7 @@ private:
 			return;
 		}
 
-		directory = path.substr(0, path.find_last_of('/'));
+		m_Directory = path.substr(0, path.find_last_of('/'));
 
 		processNode(scene->mRootNode, scene);
 	}
@@ -64,7 +64,7 @@ private:
 			// the node object only contains indices to index the actual objects in the scene. 
 			// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			meshes.push_back(processMesh(mesh, scene));
+			m_Meshes.push_back(processMesh(mesh, scene));
 		}
 		// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -158,20 +158,20 @@ private:
 			mat->GetTexture(type, i, &str);
 			// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 			bool skip = false;
-			for (unsigned int j = 0; j < textures_loaded.size(); j++)
+			for (unsigned int j = 0; j < m_Textures_loaded.size(); j++)
 			{
-				if (std::strcmp(textures_loaded[j].GetPath().data(), str.C_Str()) == 0)
+				if (std::strcmp(m_Textures_loaded[j].GetPath().data(), str.C_Str()) == 0)
 				{
-					textures.push_back(textures_loaded[j]);
+					textures.push_back(m_Textures_loaded[j]);
 					skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
 					break;
 				}
 			}
 			if (!skip)
 			{   // if texture hasn't been loaded already, load it
-				Texture texture(str.C_Str(), this->directory, typeName);
+				Texture texture(str.C_Str(), this->m_Directory, typeName);
 				textures.push_back(texture);
-				textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+				m_Textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 			}
 		}
 		return textures;

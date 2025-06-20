@@ -1,11 +1,11 @@
 #include "physicalentity.hpp"
 
-PhysicalEntity::PhysicalEntity(std::vector<Mesh>& meshes, glm::vec3 pos) : Entity(pos), mMeshes(meshes)
+PhysicalEntity::PhysicalEntity(std::vector<Mesh>& meshes, glm::vec3 pos) : Entity(pos), m_Meshes(meshes)
 {
 
 }
 
-PhysicalEntity::PhysicalEntity(std::vector<Mesh>& meshes) : Entity(), mMeshes(meshes)
+PhysicalEntity::PhysicalEntity(std::vector<Mesh>& meshes) : Entity(), m_Meshes(meshes)
 {
 
 }
@@ -17,7 +17,7 @@ void PhysicalEntity::Draw(Shader& shader)
 	model = glm::scale(model, m_Scale);
 	shader.UniformMatrix4f("uModel", model);
 
-	for (auto& mesh : mMeshes)
+	for (auto& mesh : m_Meshes)
 	{
 		mesh.Draw(shader);
 	}

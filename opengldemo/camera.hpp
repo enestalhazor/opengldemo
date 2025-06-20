@@ -11,7 +11,6 @@
 class Camera : public Entity
 {
 public:
-
 	Camera();
 	Camera(glm::vec3 Pos);
 

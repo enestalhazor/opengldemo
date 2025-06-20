@@ -26,18 +26,18 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 
-uniform vec3 viewPos;
-uniform float far_plane;
-uniform samplerCube depthMap;
+uniform vec3 uViewPos;
+uniform float uFar_plane;
+uniform samplerCube uDepthMap;
 
-struct Material
+struct uMaterial
 {
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
 	sampler2D texture_mormal1;
 };
 
-struct Light
+struct uLight
 {
 	vec3 position;
 	vec3 ambient;
@@ -45,14 +45,14 @@ struct Light
     vec3 specular;
 };
 
-uniform Material material;
-uniform Light light;
+uniform uMaterial material;
+uniform uLight light;
 
 float ShadowCalculation(vec3 fragPos)
 {
     vec3 fragToLight = FragPos - light.position;
-    float closest = texture(depthMap, fragToLight).r;
-    closest *= far_plane;
+    float closest = texture(uDepthMap, fragToLight).r;
+    closest *= uFar_plane;
     float currentDepth = length(fragToLight);
     float bias = 0.05f;
     float shadow = currentDepth -  bias > closest ? 1.0f : 0.0f;        
@@ -72,7 +72,7 @@ void main()
     float diff = max(dot(lightDir, normal), 0.0f);
     vec3 diffuse = light.diffuse * diff * texture(material.texture_diffuse1, TexCoords).rgb;
 
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(uViewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = 0.0f;
     vec3 halfwayDir = normalize(lightDir + viewDir);  

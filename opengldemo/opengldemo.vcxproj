@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files\Assimp\include;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\stb;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\glm-0.9.9.8;C:\Users\enest\Downloads\glad\include;C:\Users\enest\Downloads\glfw-3.4\glfw-3.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\imgui\backends;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\imgui;C:\Program Files\Assimp\include;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\stb;C:\Users\enest\source\repos\opengldemo\opengldemo\vendor\glm-0.9.9.8;C:\Users\enest\Downloads\glad\include;C:\Users\enest\Downloads\glfw-3.4\glfw-3.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -140,11 +140,20 @@
     <ClCompile Include="opengldemo.cpp" />
     <ClCompile Include="opengldemo3.cpp" />
     <ClCompile Include="opengldemo4.cpp" />
+    <ClCompile Include="opengldemo5.cpp" />
     <ClCompile Include="physicalentity.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shadowmap.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="vendor\imgui\imgui.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="vendor\stb\stb_image.cpp" />
     <ClCompile Include="vertex_array.cpp" />
     <ClCompile Include="vertex_data.hpp" />
@@ -174,6 +183,12 @@
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="shadowmap.hpp" />
     <ClInclude Include="texture.hpp" />
+    <ClInclude Include="vendor\imgui\imconfig.h" />
+    <ClInclude Include="vendor\imgui\imgui.h" />
+    <ClInclude Include="vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="vendor\stb\stb_image.hpp" />
     <ClInclude Include="vertex.hpp" />
     <ClInclude Include="vertex_array.hpp" />

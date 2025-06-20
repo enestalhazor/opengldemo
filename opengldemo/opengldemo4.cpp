@@ -38,16 +38,10 @@ const unsigned int SHADOW_HEIGHT = 1024 * 4;
 float lastX1 = SCR_WIDTH / 2.0f;
 float lastY1 = SCR_HEIGHT / 2.0f;
 bool firstMouse1 = true;
-bool blinn = false;
-bool blinnKeyPressed = false;
 
 float deltaTime1 = 0.0f;
 float lastFrame1 = 0.0f;
 static int frameCount = 0;
-int p = 0;
-
-float near_plane = 0.1f;
-float far_plane = 25.0f;
 
 static Camera cam(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -89,15 +83,13 @@ int main()
 	Shader lightShader("lightshader.glsl", false);
 	Shader cubeMapShader("pointshadow_depth.glsl", true);
 
-	CubeMap cubeMap(SHADOW_WIDTH, SHADOW_HEIGHT, near_plane, far_plane);
-	// Texture cubeMap(SHADOW_WIDTH, SHADOW_HEIGHT, CubeMap);
+	CubeMap cubeMap(SHADOW_WIDTH, SHADOW_HEIGHT, 0.1f, 25.0f);
 	Texture floorDiffuse("wood.png", "mytextures", "texture_diffuse");
 	Texture floorSpecular("wood.png", "mytextures", "texture_specular");
 
 	std::vector<Texture> textures;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-
 
 	unsigned int d_indices[] = {
 			0, 1, 3,
@@ -136,7 +128,7 @@ int main()
 
 	PhysicalEntity floor(meshes, glm::vec3(0.0f, -2.0f, 0.0f));
 	floor.SetScale(glm::vec3(5.0f));
-	PhysicalEntity backpack(backpackModel.meshes);
+	PhysicalEntity backpack(backpackModel.m_Meshes);
 	backpack.SetSpeed(glm::vec3(0.0f, 0.005f, 0.0f));
 	PhysicalEntity light(meshes, glm::vec3(0.0f, 0.0f, 2.0f));
 	light.SetScale(glm::vec3(0.2f));
@@ -174,12 +166,12 @@ int main()
 		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / float(SCR_HEIGHT), 0.1f, 100.0f);
 		ourShader3.UniformMatrix4f("uProjection", projection);
 		ourShader3.UniformMatrix4f("uView", cam.GetViewMatrix());
-		ourShader3.Uniform1v("viewPos", cam.GetPos());
+		ourShader3.Uniform1v("uViewPos", cam.GetPos());
 		ourShader3.UniformLight(glm::vec3(0.3f, 0.3f, 0.3f), lightDiffuse, glm::vec3(1.0f, 1.0f, 1.0f), light.GetPos());
-		ourShader3.Uniform1f("far_plane", far_plane);
+		ourShader3.Uniform1f("uFar_plane", 25.0f);
 
 		cubeMap.BindTexture(5);
-		ourShader3.Uniform1i("depthMap", 5);
+		ourShader3.Uniform1i("uDepthMap", 5);
 
 		floor.Draw(ourShader3);
 		hat.Draw(ourShader3);
@@ -187,7 +179,6 @@ int main()
 		backpack.Draw(ourShader3);
 
 		frameCount++;
-		backpack.Move();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
