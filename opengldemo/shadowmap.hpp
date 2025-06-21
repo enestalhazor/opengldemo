@@ -5,6 +5,7 @@
 #include <stb_image.hpp>
 #include "glerror.hpp"
 #include "shader.hpp"
+#include "light.hpp"
 
 class ShadowMap
 {
@@ -23,7 +24,7 @@ public:
 	void BindFrameBuffer() const;
 	void UnbindFrameBuffer() const;
 	void BindTexture(unsigned int slot) const;
-	void ConfigureShader(Shader& shader, glm::vec3 lightPos);
+	void ConfigureShader(Shader& shader, Light& light);
 	glm::mat4 GetLightSpaceMatrix();
 
 };

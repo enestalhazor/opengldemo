@@ -12,4 +12,5 @@ public:
 	PhysicalEntity(std::vector<Mesh>& meshes, glm::vec3 pos);
 	PhysicalEntity(std::vector<Mesh>& meshes);
 	void Draw(Shader& shader);
+	std::vector<Mesh> GetMeshes();
 };

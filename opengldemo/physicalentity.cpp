@@ -22,3 +22,8 @@ void PhysicalEntity::Draw(Shader& shader)
 		mesh.Draw(shader);
 	}
 }
+
+std::vector<Mesh> PhysicalEntity::GetMeshes()
+{
+	return m_Meshes;
+}

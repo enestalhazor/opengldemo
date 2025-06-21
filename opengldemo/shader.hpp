@@ -6,7 +6,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
 #include "material.hpp"
+#include <string>
 
 class Shader
 {
@@ -23,15 +25,27 @@ public:
 
 	void Uniform3f(const char* name, float f1, float f2, float f3);
 
-	void Uniform1v(const char* name, glm::vec3 uniform);
+	void Uniform1v(const std::string name, glm::vec3 uniform);
 
 	void Uniform1i(const char* name, int f);
 
-	void UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos);
+	template<typename T>
+	void UniformLight(std::vector<std::shared_ptr<T>>& lights)
+	{
+		// std::cout << "UniformLight sent." << std::endl;
+
+		for (int i = 0; i < 2; i++)
+		{
+			Uniform1v("light[" + std::to_string(i) + "].ambient", lights[i]->GetAmbient());
+			Uniform1v("light[" + std::to_string(i) + "].diffuse", lights[i]->GetDiffuse());
+			Uniform1v("light[" + std::to_string(i) + "].specular", lights[i]->GetSpecular());
+			Uniform1v("light[" + std::to_string(i) + "].position", lights[i]->GetPos());
+		}
+	}
 
 	void Uniform3fv(const char* name, int count, const float* arr);
 
-	void Uniform1f(const char* name, float f);
+	void Uniform1f(const std::string name, float f);
 
 	void UniformMatrix4f(const std::string& name, glm::mat4 trans);
 

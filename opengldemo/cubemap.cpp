@@ -41,18 +41,18 @@ void CubeMap::UnbindFrameBuffer() const
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void CubeMap::ConfigureShader(Shader& shader, glm::vec3 lightPos) const
+void CubeMap::ConfigureShader(Shader& shader, Light& light) const
 {
 	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)m_Width / (float)m_Height, m_NearPlane, m_FarPlane);
 
 	std::vector<glm::mat4> shadowTransforms;
 
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(light.GetPos(), light.GetPos() + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(light.GetPos(), light.GetPos() + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(light.GetPos(), light.GetPos() + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(light.GetPos(), light.GetPos() + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(light.GetPos(), light.GetPos() + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(light.GetPos(), light.GetPos() + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
 	shader.Bind();
 
@@ -62,5 +62,6 @@ void CubeMap::ConfigureShader(Shader& shader, glm::vec3 lightPos) const
 	}
 
 	shader.Uniform1f("uFar_plane", m_FarPlane);
-	shader.Uniform1v("uLightPos", lightPos);
+
+	shader.Uniform1v("uLightPos", light.GetPos());
 }

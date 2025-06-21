@@ -30,14 +30,14 @@ uniform vec3 uViewPos;
 uniform float uFar_plane;
 uniform samplerCube uDepthMap;
 
-struct uMaterial
+struct Material
 {
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
 	sampler2D texture_mormal1;
 };
 
-struct uLight
+struct Light
 {
 	vec3 position;
 	vec3 ambient;
@@ -45,8 +45,8 @@ struct uLight
     vec3 specular;
 };
 
-uniform uMaterial material;
-uniform uLight light;
+uniform Material uMaterial;
+uniform Light uLights[2];
 
 float ShadowCalculation(vec3 fragPos)
 {

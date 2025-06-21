@@ -42,7 +42,7 @@ void ShadowMap::BindTexture(unsigned int slot) const
 	GLError(glBindTexture(GL_TEXTURE_2D, m_Id));
 }
 
-void ShadowMap::ConfigureShader(Shader& shader, glm::vec3 lightPos)
+void ShadowMap::ConfigureShader(Shader& shader, Light& light)
 {
 	glm::mat4 lightProjection;
 	glm::mat4 lightView;
