@@ -184,14 +184,14 @@ void Shader::Uniform1f(const char* name, float f)
 	GLError(glUniform1f(vertexColorLocation, f));
 }
 
-void Shader::Uniform1i(const char* name, int f)
+void Shader::Uniform1i(const std::string name, int f)
 {
 	Bind();
 	//std::cout << "Uniform1v sent." << std::endl;
 	//std::cout << "Uniform1v name: " << name << std::endl;
 	//std::cout << name << "value: " << f << std::endl;
 
-	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name.c_str());
 	GLError(glUniform1i(vertexColorLocation, f));
 }
 

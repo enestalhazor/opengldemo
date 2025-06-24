@@ -9,6 +9,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include "shader.hpp"
 #include "vertex_array.hpp"
 #include "texture.hpp"
@@ -22,27 +25,29 @@
 #include "glerror.hpp"
 #include "cubemap.hpp"
 #include "physicalentity.hpp"
+#include "light.hpp"
 
-void pushTransforms(glm::vec3 lightPos, glm::mat4 shadowProjection, std::vector<glm::mat4>& shadowTransforms, glm::vec3 v1, glm::vec3 v2);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window, std::vector<PhysicalEntity>& lights);
-
-unsigned int SCR_WIDTH = 800;
-unsigned int SCR_HEIGHT = 600;
+void processInput(GLFWwindow* window, std::vector<Light>& lights);
 
 const unsigned int SHADOW_WIDTH = 1024 * 4;
 const unsigned int SHADOW_HEIGHT = 1024 * 4;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 600;
+
+bool firstMouse1 = true;
+bool fpsControl = true;
 
 float lastX1 = SCR_WIDTH / 2.0f;
 float lastY1 = SCR_HEIGHT / 2.0f;
-bool firstMouse1 = true;
-
 float deltaTime1 = 0.0f;
 float lastFrame1 = 0.0f;
-static int frameCount = 0;
+float camPitch = 0;
+float camYaw = 0;
 
+static int frameCount = 0;
 static Camera cam(glm::vec3(0.0f, 0.0f, 3.0f));
 
 glm::vec3 lightDiffuse(1.0f, 1.0f, 1.0f);
@@ -90,7 +95,7 @@ int main()
 	std::vector<CubeMap> cubeMaps;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<PhysicalEntity> lights;
+	std::vector<Light> lights;
 	std::vector <int> values;
 
 	values.push_back(5);
@@ -140,9 +145,26 @@ int main()
 	floor.SetScale(glm::vec3(5.0f));
 	PhysicalEntity backpack(backpackModel.m_Meshes);
 	backpack.SetSpeed(glm::vec3(0.0f, 0.005f, 0.0f));
-	lights.emplace_back(meshes, glm::vec3(0.0f, 0.0f, 2.0f));
-	lights.emplace_back(meshes, glm::vec3(0.0f, 3.0f, 2.0f));
-	lights.emplace_back(meshes, glm::vec3(0.0f, 5.0f, 0.0f));
+	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 2.0f), meshes);
+	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 3.0f, 2.0f), meshes);
+	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 5.0f, 2.0f), meshes);
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 130");
+
+	bool show_another_window = false;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	for (auto& light : lights)
 	{
@@ -151,6 +173,23 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		if (fpsControl)
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+
+		glfwPollEvents();
+
+		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
+		{
+			ImGui_ImplGlfw_Sleep(10);
+			continue;
+		}
+
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime1 = currentFrame - lastFrame1;
 		lastFrame1 = currentFrame;
@@ -158,7 +197,12 @@ int main()
 		processInput(window, lights);
 
 		GLError(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
-		GLError(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+		if (!fpsControl)
+		{
+			cam.SetPitch(camPitch);
+			cam.SetYaw(camYaw);
+		}
 
 		// 1.
 
@@ -175,7 +219,26 @@ int main()
 
 		// 2.
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("OpenglDemo Enes");
+		ImGui::SliderFloat("Pitch", &camPitch, -180.0f, 180.0f);
+		ImGui::SliderFloat("Yaw", &camYaw, -180.0f, 180.0f);
+		ImGui::End();
+
+		// Rendering
+		ImGui::Render();
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
+
+		glClearColor(clear_color.x* clear_color.w, clear_color.y* clear_color.w, clear_color.z* clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		ourShader3.Bind();
 		glm::mat4 projection;
@@ -183,7 +246,7 @@ int main()
 		ourShader3.UniformMatrix4f("uProjection", projection);
 		ourShader3.UniformMatrix4f("uView", cam.GetViewMatrix());
 		ourShader3.Uniform1v("uViewPos", cam.GetPos());
-		ourShader3.UniformLight(glm::vec3(0.3f, 0.3f, 0.3f), lightDiffuse, glm::vec3(1.0f, 1.0f, 1.0f), lights);
+		ourShader3.UniformLight(lights);
 		ourShader3.Uniform1f("uFar_plane", 25.0f);
 
 		for (int i = 0; i < cubeMaps.size(); i++)
@@ -204,14 +267,13 @@ int main()
 		frameCount++;
 
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	glfwTerminate();
 	return 0;
 }
 
-void processInput(GLFWwindow* window, std::vector<PhysicalEntity>& lights)
+void processInput(GLFWwindow* window, std::vector<Light>& lights)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -237,56 +299,8 @@ void processInput(GLFWwindow* window, std::vector<PhysicalEntity>& lights)
 	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
 		lights[0].SetPos(lights[0].GetPos() - glm::vec3(0.0f, 0.05f, 0.0f));
 
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		lights[1].SetPos(lights[1].GetPos() - glm::vec3(0.0f, 0.0f, 0.05f));
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-		lights[1].SetPos(lights[1].GetPos() + glm::vec3(0.0f, 0.0f, 0.05f));
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-		lights[1].SetPos(lights[1].GetPos() + glm::vec3(0.05f, 0.0f, 0.0f));
-	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
-		lights[1].SetPos(lights[1].GetPos() - glm::vec3(0.05f, 0.0f, 0.0f));
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-		lights[1].SetPos(lights[1].GetPos() + glm::vec3(0.0f, 0.05f, 0.0f));
-	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-		lights[1].SetPos(lights[1].GetPos() - glm::vec3(0.0f, 0.05f, 0.0f));
-
-	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-		lightDiffuse.r += 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-		lightDiffuse.g += 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-		lightDiffuse.b += 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-		lightDiffuse.r -= 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-		lightDiffuse.g -= 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
-		lightDiffuse.b -= 0.01f;
-
-	if (lightDiffuse.r > 1.0f)
-	{
-		lightDiffuse.r = 1.0f;
-	}
-	if (lightDiffuse.r < 0.0f)
-	{
-		lightDiffuse.r = 0.0f;
-	}
-	if (lightDiffuse.g > 1.0f)
-	{
-		lightDiffuse.g = 1.0f;
-	}
-	if (lightDiffuse.g < 0.0f)
-	{
-		lightDiffuse.g = 0.0f;
-	}
-	if (lightDiffuse.b > 1.0f)
-	{
-		lightDiffuse.b = 1.0f;
-	}
-	if (lightDiffuse.b < 0.0f)
-	{
-		lightDiffuse.b = 0.0f;
-	}
+	if (glfwGetKey(window, GLFW_KEY_F6) == GLFW_PRESS)
+		fpsControl = !fpsControl;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -299,6 +313,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+	if (!fpsControl)
+	{
+		return;
+	}
+
 	float xpos = static_cast<float>(xposIn);
 	float ypos = static_cast<float>(yposIn);
 
@@ -317,6 +336,9 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 	cam.RotateHorizontally(xoffset / 5.0f);
 	cam.RotateVertically(yoffset / 5.0f);
+
+	camPitch = cam.GetPitch();
+	camYaw = cam.GetYaw();
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

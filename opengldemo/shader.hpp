@@ -27,21 +27,21 @@ public:
 
 	void Uniform1v(const std::string name, glm::vec3 uniform);
 
-	void Uniform1i(const char* name, int f);
+	void Uniform1i(const std::string name, int f);
 
 	void Uniform1iv(const std::string name, const std::vector<int>& values);
 
 	template<typename T>
-	void UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, const std::vector<T>& lights)
+	void UniformLight(const std::vector<T>& lights)
 	{
 		int i = 0;
 		// std::cout << "UniformLight sent." << std::endl;
 
 		for (int i = 0; i < lights.size(); i++)
 		{
-			Uniform1v("uLight[" + std::to_string(i) + "].ambient", ambient);
-			Uniform1v("uLight[" + std::to_string(i) + "].diffuse", diffuse);
-			Uniform1v("uLight[" + std::to_string(i) + "].specular", specular);
+			Uniform1v("uLight[" + std::to_string(i) + "].ambient", lights[i].GetAmbient());
+			Uniform1v("uLight[" + std::to_string(i) + "].diffuse", lights[i].GetDiffuse());
+			Uniform1v("uLight[" + std::to_string(i) + "].specular", lights[i].GetSpecular());
 			Uniform1v("uLight[" + std::to_string(i) + "].position", lights[i].GetPos());
 		}
 	}
