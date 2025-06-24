@@ -2,7 +2,7 @@
 #include "shader.hpp"
 #include <string>
 #include "glerror.hpp"
-#include "glm/gtx/string_cast.hpp",
+#include "glm/gtx/string_cast.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -151,25 +151,15 @@ void Shader::Uniform3f(const char* name, float f1, float f2, float f3)
 	GLError(glUniform3f(vertexColorLocation, f1, f2, f3));
 }
 
-void Shader::Uniform1v(const char* name, glm::vec3 uniform)
+void Shader::Uniform1v(const std::string name, glm::vec3 uniform)
 {
 	Bind();
 	//std::cout << "Uniform1v sent." << std::endl;
 	//std::cout << "Uniform1v name: " << name << std::endl;
 	//std::cout << name << "vector: " << glm::to_string(uniform) << std::endl;
 
-	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name.c_str());
 	GLError(glUniform3f(vertexColorLocation, uniform.x, uniform.y, uniform.z));
-}
-
-void Shader::UniformLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 pos)
-{
-	// std::cout << "UniformLight sent." << std::endl;
-
-	Uniform1v("light.ambient", ambient);
-	Uniform1v("light.diffuse", diffuse);
-	Uniform1v("light.specular", specular);
-	Uniform1v("light.position", pos);
 }
 
 void Shader::Uniform3fv(const char* name, int count, const float* arr)
@@ -203,6 +193,17 @@ void Shader::Uniform1i(const char* name, int f)
 
 	int vertexColorLocation = glGetUniformLocation(shaderProgram, name);
 	GLError(glUniform1i(vertexColorLocation, f));
+}
+
+void Shader::Uniform1iv(const std::string name, const std::vector<int>& values)
+{
+	Bind();
+	//std::cout << "Uniform1v sent." << std::endl;
+	//std::cout << "Uniform1v name: " << name << std::endl;
+	//std::cout << name << "value: " << f << std::endl;
+
+	int vertexColorLocation = glGetUniformLocation(shaderProgram, name.c_str());
+	GLError(glUniform1iv(vertexColorLocation, values.size(), &values[0]));
 }
 
 void Shader::UniformMatrix4f(const std::string& name, glm::mat4 trans)

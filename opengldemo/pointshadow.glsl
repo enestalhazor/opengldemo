@@ -28,16 +28,16 @@ in vec2 TexCoords;
 
 uniform vec3 uViewPos;
 uniform float uFar_plane;
-uniform samplerCube uDepthMap;
 
-struct uMaterial
+
+struct Material
 {
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
 	sampler2D texture_mormal1;
 };
 
-struct uLight
+struct Light
 {
 	vec3 position;
 	vec3 ambient;
@@ -45,42 +45,45 @@ struct uLight
     vec3 specular;
 };
 
-uniform uMaterial material;
-uniform uLight light;
+uniform Material uMaterial;
+uniform Light uLight[3];
+uniform samplerCube uDepthMap[3];
 
-float ShadowCalculation(vec3 fragPos)
+float ShadowCalculation(vec3 fragPos, int i)
 {
-    vec3 fragToLight = FragPos - light.position;
-    float closest = texture(uDepthMap, fragToLight).r;
+    vec3 fragToLight = FragPos - uLight[i].position;
+    float closest = texture(uDepthMap[i], fragToLight).r;
     closest *= uFar_plane;
     float currentDepth = length(fragToLight);
     float bias = 0.05f;
-    float shadow = currentDepth -  bias > closest ? 1.0f : 0.0f;        
-        
+    float shadow = currentDepth - bias > closest ? 1.0f : 0.0f;        
     return shadow;
 }
 
 void main()
-{           
-    vec3 color = texture(material.texture_diffuse1, TexCoords).rgb;
-    vec3 normal = normalize(Normal);
-    vec3 lightColor = vec3(1.0f);
+{     
+    vec3 lighting = vec3(0.0f);
+    for(int i = 0; i < 3; i++)
+    {
+        vec3 color = texture(uMaterial.texture_diffuse1, TexCoords).rgb;
+        vec3 normal = normalize(Normal);
+        vec3 lightColor = vec3(1.0f);
 
-    vec3 ambient = light.ambient * texture(material.texture_diffuse1, TexCoords).rgb;
+        vec3 ambient = uLight[i].ambient * texture(uMaterial.texture_diffuse1, TexCoords).rgb;
 
-    vec3 lightDir = normalize(light.position- FragPos);
-    float diff = max(dot(lightDir, normal), 0.0f);
-    vec3 diffuse = light.diffuse * diff * texture(material.texture_diffuse1, TexCoords).rgb;
+        vec3 lightDir = normalize(uLight[i].position - FragPos);
+        float diff = max(dot(lightDir, normal), 0.0f);
+        vec3 diffuse = uLight[i].diffuse * diff * texture(uMaterial.texture_diffuse1, TexCoords).rgb;
 
-    vec3 viewDir = normalize(uViewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = 0.0f;
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    spec = pow(max(dot(normal, halfwayDir), 0.0f), 64.0f);
-    vec3 specular = spec * texture(material.texture_specular1, TexCoords).rgb;    
+        vec3 viewDir = normalize(uViewPos - FragPos);
+        vec3 reflectDir = reflect(-lightDir, normal);
+        float spec = 0.0f;
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        spec = pow(max(dot(normal, halfwayDir), 0.0f), 64.0f);
+        vec3 specular = spec * texture(uMaterial.texture_specular1, TexCoords).rgb;
+        float shadow = ShadowCalculation(FragPos, i);
+        lighting += (ambient + (1.0f - shadow) * (diffuse + specular)) * color;
+    }
 
-    float shadow = ShadowCalculation(FragPos);                      
-    vec3 lighting = (ambient + (1.0f - shadow) * (diffuse + specular)) * color;    
-    
     FragColor = vec4(lighting, 1.0f);
 }

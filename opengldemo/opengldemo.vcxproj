@@ -136,6 +136,7 @@
     <ClCompile Include="cubemap.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="glerror.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="opengldemo2.cpp" />
     <ClCompile Include="opengldemo.cpp" />
     <ClCompile Include="opengldemo3.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="entity.hpp" />
     <ClInclude Include="glerror.hpp" />
     <ClInclude Include="global.hpp" />
+    <ClInclude Include="light.hpp" />
     <ClInclude Include="material.hpp" />
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="model.hpp" />

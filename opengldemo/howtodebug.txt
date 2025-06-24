@@ -1,7 +1,7 @@
 * if the debugger is unavailable due to complation errors or linkage errors
 1. check all the changes since the last commit
 2. check if all the needed cpp files are include in the project (needed = cpp files that have the definition of functions that we newly started the use)
-3. check for circular dependencies, e.g. shader needs light and light needs shader (syntex error: identifier or undefined identifier) (if cannot be easily fixed use templates)
+3. check for circular dependencies, e.g. shader needs light and light needs shader (syntax error: identifier or undefined identifier) (if cannot be easily fixed use templates)
 
 * use the debugger or print statements and do the following 
 1. starting from the main function, check if all the parameters passed to constructors, functions, methods, etc. correctly.
