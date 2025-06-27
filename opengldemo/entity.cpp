@@ -11,7 +11,7 @@ Entity::Entity(glm::vec3 pos) : m_Id(counter++), m_Pos(pos), m_Scale(1), m_Speed
 
 }
 
-glm::vec3 Entity::GetPos() const
+glm::vec3& Entity::GetPos()
 {
 	return m_Pos;
 }
@@ -135,7 +135,7 @@ void Entity::calculateDirection()
 	m_Direction = glm::normalize(direction);
 }
 
-glm::mat4 Entity::GetModelMatrix() const
+glm::mat4 Entity::GetModelMatrix()
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, GetPos());

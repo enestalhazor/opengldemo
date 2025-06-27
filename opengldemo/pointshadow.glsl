@@ -29,7 +29,6 @@ in vec2 TexCoords;
 uniform vec3 uViewPos;
 uniform float uFar_plane;
 
-
 struct Material
 {
 	sampler2D texture_diffuse1;

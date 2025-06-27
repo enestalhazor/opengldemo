@@ -21,7 +21,7 @@ public:
 
 	Entity();
 	Entity(glm::vec3 pos);
-	glm::vec3 GetPos() const;
+	glm::vec3& GetPos(); 
 	// moves the entity using it speed
 	void Move();
 	// moves the entity by delta
@@ -44,7 +44,7 @@ public:
 	void MoveBackward(float amount);
 	void MoveRight(float amount);
 	void MoveLeft(float amount);
-	glm::mat4 GetModelMatrix() const;
+	glm::mat4 GetModelMatrix();
 
 private:
 	void calculateDirection();

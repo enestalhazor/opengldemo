@@ -3,6 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
 #include <vector>
+#include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -32,8 +33,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window, std::vector<Light>& lights);
 
-const unsigned int SHADOW_WIDTH = 1024 * 4;
-const unsigned int SHADOW_HEIGHT = 1024 * 4;
+const unsigned int SHADOW_WIDTH = 1024 * 2;
+const unsigned int SHADOW_HEIGHT = 1024 * 2;
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
 
@@ -98,13 +99,15 @@ int main()
 	std::vector<Light> lights;
 	std::vector <int> values;
 
-	values.push_back(5);
-	values.push_back(6);
-	values.push_back(7);
+	for (int i = 0; i < 5; i++)
+	{
+		values.push_back(i + 5);
+	}
 
-	cubeMaps.emplace_back(SHADOW_WIDTH, SHADOW_HEIGHT, 0.1f, 25.0f);
-	cubeMaps.emplace_back(SHADOW_WIDTH, SHADOW_HEIGHT, 0.1f, 25.0f);
-	cubeMaps.emplace_back(SHADOW_WIDTH, SHADOW_HEIGHT, 0.1f, 25.0f);
+	for (int i = 0; i < 5; i++)
+	{
+		cubeMaps.emplace_back(SHADOW_WIDTH, SHADOW_HEIGHT, 0.1f, 25.0f);
+	}
 
 	unsigned int d_indices[] = {
 			0, 1, 3,
@@ -147,7 +150,10 @@ int main()
 	backpack.SetSpeed(glm::vec3(0.0f, 0.005f, 0.0f));
 	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 2.0f), meshes);
 	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 3.0f, 2.0f), meshes);
-	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 5.0f, 2.0f), meshes);
+	for (int i = 0; i < 3; i++)
+	{
+		lights.emplace_back(glm::vec3(0.0f), glm::vec3(0), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), meshes);
+	}
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -170,6 +176,8 @@ int main()
 	{
 		light.SetScale(glm::vec3(0.2f));
 	}
+
+	// Renderer renderer(ourShader3, cam)
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -229,16 +237,18 @@ int main()
 		ImGui::Begin("OpenglDemo Enes");
 		ImGui::SliderFloat("Pitch", &camPitch, -180.0f, 180.0f);
 		ImGui::SliderFloat("Yaw", &camYaw, -180.0f, 180.0f);
+		for (int i = 0; i < lights.size(); i++)
+		{
+			ImGui::SliderFloat3((std::to_string(i + 1) + ". Light pos").c_str(), (&lights[i].GetPos().z, &lights[i].GetPos().y, &lights[i].GetPos().x), -10.0f, 10.0f);
+		}
+
 		ImGui::End();
 
 		// Rendering
 		ImGui::Render();
-		int display_w, display_h;
-		glfwGetFramebufferSize(window, &display_w, &display_h);
 
-		glClearColor(clear_color.x* clear_color.w, clear_color.y* clear_color.w, clear_color.z* clear_color.w, clear_color.w);
+		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		ourShader3.Bind();
 		glm::mat4 projection;
@@ -248,6 +258,7 @@ int main()
 		ourShader3.Uniform1v("uViewPos", cam.GetPos());
 		ourShader3.UniformLight(lights);
 		ourShader3.Uniform1f("uFar_plane", 25.0f);
+		ourShader3.Uniform1i("uLightCount", lights.size());
 
 		for (int i = 0; i < cubeMaps.size(); i++)
 		{
@@ -263,6 +274,10 @@ int main()
 
 		floor.Draw(ourShader3);
 		backpack.Draw(ourShader3);
+
+		// renderer.Draw(lights, entities)
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		frameCount++;
 
@@ -285,20 +300,6 @@ void processInput(GLFWwindow* window, std::vector<Light>& lights)
 		cam.MoveBackward(deltaTime1 * 2.0f);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cam.MoveRight(deltaTime1 * 2.0f);
-
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		lights[0].SetPos(lights[0].GetPos() - glm::vec3(0.0f, 0.0f, 0.05f));
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		lights[0].SetPos(lights[0].GetPos() + glm::vec3(0.0f, 0.0f, 0.05f));
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		lights[0].SetPos(lights[0].GetPos() + glm::vec3(0.05f, 0.0f, 0.0f));
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		lights[0].SetPos(lights[0].GetPos() - glm::vec3(0.05f, 0.0f, 0.0f));
-	if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-		lights[0].SetPos(lights[0].GetPos() + glm::vec3(0.0f, 0.05f, 0.0f));
-	if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-		lights[0].SetPos(lights[0].GetPos() - glm::vec3(0.0f, 0.05f, 0.0f));
-
 	if (glfwGetKey(window, GLFW_KEY_F6) == GLFW_PRESS)
 		fpsControl = !fpsControl;
 }

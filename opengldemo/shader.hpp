@@ -29,10 +29,12 @@ public:
 
 	void Uniform1i(const std::string name, int f);
 
+	void Uniform1ui(const std::string name, int f);
+
 	void Uniform1iv(const std::string name, const std::vector<int>& values);
 
 	template<typename T>
-	void UniformLight(const std::vector<T>& lights)
+	void UniformLight(std::vector<T>& lights)
 	{
 		int i = 0;
 		// std::cout << "UniformLight sent." << std::endl;
