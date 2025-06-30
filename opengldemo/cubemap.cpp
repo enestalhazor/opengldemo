@@ -3,6 +3,8 @@
 
 CubeMap::CubeMap(unsigned int width, unsigned int height, float nearPlane, float farPlane) : m_Width(width), m_Height(height), m_NearPlane(nearPlane), m_FarPlane(farPlane)
 {
+	std::cout << "cubemap created" << std::endl;
+
 	glGenFramebuffers(1, &m_FBO);
 	glGenTextures(1, &m_Id);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_Id);

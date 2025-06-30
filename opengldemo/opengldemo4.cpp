@@ -93,20 +93,14 @@ int main()
 	Texture floorSpecular("wood.png", "mytextures", "texture_specular");
 
 	std::vector<Texture> textures;
-	std::vector<CubeMap> cubeMaps;
 	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
 	std::vector<Light> lights;
+	std::vector<unsigned int> indices;
 	std::vector <int> values;
 
 	for (int i = 0; i < 5; i++)
 	{
 		values.push_back(i + 5);
-	}
-
-	for (int i = 0; i < 5; i++)
-	{
-		cubeMaps.emplace_back(SHADOW_WIDTH, SHADOW_HEIGHT, 0.1f, 25.0f);
 	}
 
 	unsigned int d_indices[] = {
@@ -148,6 +142,7 @@ int main()
 	floor.SetScale(glm::vec3(5.0f));
 	PhysicalEntity backpack(backpackModel.m_Meshes);
 	backpack.SetSpeed(glm::vec3(0.0f, 0.005f, 0.0f));
+
 	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 2.0f), meshes);
 	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 3.0f, 2.0f), meshes);
 	for (int i = 0; i < 3; i++)
@@ -214,15 +209,15 @@ int main()
 
 		// 1.
 
-		for (int i = 0; i < cubeMaps.size(); i++)
+		for (int i = 0; i < lights.size(); i++)
 		{
-			cubeMaps[i].ConfigureShader(cubeMapShader, lights[i].GetPos());
-			cubeMaps[i].BindFrameBuffer();
+			lights[i].GetCubeMap().ConfigureShader(cubeMapShader, lights[i].GetPos());
+			lights[i].GetCubeMap().BindFrameBuffer();
 
 			floor.Draw(cubeMapShader);
 			backpack.Draw(cubeMapShader);
 
-			cubeMaps[i].UnbindFrameBuffer();
+			lights[i].GetCubeMap().UnbindFrameBuffer();
 		}
 
 		// 2.
@@ -260,9 +255,9 @@ int main()
 		ourShader3.Uniform1f("uFar_plane", 25.0f);
 		ourShader3.Uniform1i("uLightCount", lights.size());
 
-		for (int i = 0; i < cubeMaps.size(); i++)
+		for (int i = 0; i < lights.size(); i++)
 		{
-			cubeMaps[i].BindTexture(values[i]);
+			lights[i].GetCubeMap().BindTexture(values[i]);
 		}
 
 		ourShader3.Uniform1iv("uDepthMap", values);
