@@ -10,15 +10,17 @@
 #include "vertex_array.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
+#include <unordered_map>
+#include "light.hpp"
 
 class Renderer
 {
 private:
-	const Camera& m_Cam;
+	Camera& m_Cam;
+	Shader& m_Shader;
 public:
-	Renderer(const Camera& cam);
+	Renderer(Camera& cam, Shader& shader);
 
-	void Render(const VertexArray& v, Shader& s, const Texture& t, const glm::mat4& model, const glm::vec4& color);
+	void Draw(std::vector<Light>& lights, std::unordered_map<std::string ,std::shared_ptr<PhysicalEntity>>& entities);
 
-	void Render(const VertexArray& v, Shader& s, glm::mat4 model, glm::vec3 color, glm::vec3 lightColor);
 };

@@ -2,54 +2,45 @@
 #include "glm/gtx/string_cast.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
-
-Renderer::Renderer(const Camera& cam) : m_Cam(cam)
+Renderer::Renderer(Camera& cam, Shader& shader) : m_Cam(cam), m_Shader(shader)
 {
 	std::cout << "Renderer created!" << std::endl;
 	std::cout << "Renderer Camera id: " << cam.GetId() << std::endl;
 	std::cout << std::endl;
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+
+	m_Shader.UniformMatrix4f("uProjection", projection);
+	m_Shader.Uniform1f("uFar_plane", 25.0f);
 }
 
-void Renderer::Render(const VertexArray& v, Shader& s, const Texture& t, const glm::mat4& model, const glm::vec4& color)
+void Renderer::Draw(std::vector<Light>& lights, std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>>& entities)
 {
-	std::cout << "VertexArray, Shader, Texture binded." << std::endl;
-	std::cout << "Renderer Uniform mat4 uModel: " << glm::to_string(model) << std::endl;
-	std::cout << "Renderer Uniform vec3 uColor: " << glm::to_string(color) << std::endl;
+	m_Shader.Bind();
+	m_Shader.UniformMatrix4f("uView", m_Cam.GetViewMatrix());
+	m_Shader.Uniform1v("uViewPos", m_Cam.GetPos());
+	m_Shader.Uniform1i("uLightCount", lights.size());
+	m_Shader.UniformLight(lights);
 
-	v.Bind();
-	s.Bind();
-	t.Bind();
+	std::vector<int> values;
 
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
+	for (int i = 0; i < lights.size(); i++)
+	{
+		lights[i].GetCubeMap().BindTexture();
+		values.push_back(lights[i].GetCubeMap().GetSlotNum());
+	}
 
-	s.UniformMatrix4f("uView", m_Cam.GetViewMatrix());
-	s.UniformMatrix4f("uProjection", projection);
 
-	s.UniformMatrix4f("uModel", model);
-	s.Uniform4f("uColor", color.x, color.y, color.z, color.w);
+	m_Shader.Uniform1iv("uDepthMap", values);
 
-	v.Draw();
-}
+	for (int i = 0; i < lights.size(); i++)
+	{
+		lights[i].Draw(m_Shader);
+	}
 
-void Renderer::Render(const VertexArray& v, Shader& s, glm::mat4 model, glm::vec3 color, glm::vec3 lightColor)
-{
-	std::cout << "VertexArray, Shader, Texture binded." << std::endl;
-	std::cout << "Renderer Uniform mat4 uModel: " << glm::to_string(model) << std::endl;
-	std::cout << "Renderer Uniform vec3 uColor: " << glm::to_string(color) << std::endl;
-	std::cout << "Renderer Uniform vec3 uLightColor: " << glm::to_string(lightColor) << std::endl;
-	v.Bind();
-	s.Bind();
+	for (auto& pair: entities)
+	{
+		pair.second->Draw(m_Shader);
+	}
 
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
-	s.UniformMatrix4f("uView", m_Cam.GetViewMatrix());
-	s.UniformMatrix4f("uProjection", projection);
-
-	s.UniformMatrix4f("uModel", model);
-	s.Uniform3f("uObjectColor", color.x, color.y, color.z);
-	s.Uniform3f("uLightColor", lightColor.x, lightColor.y, lightColor.z);
-
-	v.Draw();
 }

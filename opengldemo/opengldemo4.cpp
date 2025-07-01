@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -31,7 +32,12 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window, std::vector<Light>& lights);
+void processInput(GLFWwindow* window);
+void ImGuiProcesses(GLFWwindow* window);
+template <typename T>
+void ImguiRender(std::vector<T>& entities);
+
+
 
 const unsigned int SHADOW_WIDTH = 1024 * 2;
 const unsigned int SHADOW_HEIGHT = 1024 * 2;
@@ -83,7 +89,7 @@ int main()
 
 	GLError(glEnable(GL_DEPTH_TEST));
 
-	Renderer render(cam);
+	//  Renderer renderer(cam);
 
 	Shader ourShader3("pointshadow.glsl", false);
 	Shader lightShader("lightshader.glsl", false);
@@ -94,14 +100,9 @@ int main()
 
 	std::vector<Texture> textures;
 	std::vector<Vertex> vertices;
+	std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>> entities;
 	std::vector<Light> lights;
 	std::vector<unsigned int> indices;
-	std::vector <int> values;
-
-	for (int i = 0; i < 5; i++)
-	{
-		values.push_back(i + 5);
-	}
 
 	unsigned int d_indices[] = {
 			0, 1, 3,
@@ -138,41 +139,36 @@ int main()
 	Mesh mesh(vertices, indices, textures);
 	meshes.push_back(mesh);
 
-	PhysicalEntity floor(meshes, glm::vec3(0.0f, -2.0f, 0.0f));
-	floor.SetScale(glm::vec3(5.0f));
-	PhysicalEntity backpack(backpackModel.m_Meshes);
-	backpack.SetSpeed(glm::vec3(0.0f, 0.005f, 0.0f));
+	entities["floor"] = std::make_shared<PhysicalEntity>(meshes, glm::vec3(0.0f, -2.0f, 0.0f));
+	entities["backpack1"] = std::make_shared<PhysicalEntity>(backpackModel.m_Meshes);
+	entities["backpack2"] = std::make_shared<PhysicalEntity>(backpackModel.m_Meshes);
+	entities["mini_backpack"] = std::make_shared<PhysicalEntity>(backpackModel.m_Meshes);
+
+	entities["floor"]->SetScale(glm::vec3(5.0f));
+	entities["backpack2"]->SetScale(glm::vec3(0.5f));
+	entities["backpack2"]->SetPos(glm::vec3(3.0f, 0.0f, 0.0f));
+	entities["backpack2"]->SetSpeed(glm::vec3(0.01f, 0.0f, 0.06f));
+	entities["mini_backpack"]->SetScale(glm::vec3(0.01f));
+	entities["mini_backpack"]->SetPos(glm::vec3(0.0f, 0.0f, 1.5f));
 
 	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 2.0f), meshes);
 	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 3.0f, 2.0f), meshes);
+
 	for (int i = 0; i < 3; i++)
 	{
-		lights.emplace_back(glm::vec3(0.0f), glm::vec3(0), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), meshes);
+		lights.emplace_back(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), meshes);
 	}
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 130");
-
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	// imgui
+	ImGuiProcesses(window);
+	// imgui
 
 	for (auto& light : lights)
 	{
 		light.SetScale(glm::vec3(0.2f));
 	}
 
-	// Renderer renderer(ourShader3, cam)
+	Renderer renderer(cam, ourShader3);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -197,7 +193,7 @@ int main()
 		deltaTime1 = currentFrame - lastFrame1;
 		lastFrame1 = currentFrame;
 
-		processInput(window, lights);
+		processInput(window);
 
 		GLError(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 
@@ -208,72 +204,32 @@ int main()
 		}
 
 		// 1.
-
 		for (int i = 0; i < lights.size(); i++)
 		{
 			lights[i].GetCubeMap().ConfigureShader(cubeMapShader, lights[i].GetPos());
 			lights[i].GetCubeMap().BindFrameBuffer();
 
-			floor.Draw(cubeMapShader);
-			backpack.Draw(cubeMapShader);
+			for (auto& pair : entities) {
+				pair.second->Draw(cubeMapShader);
+			}
 
 			lights[i].GetCubeMap().UnbindFrameBuffer();
 		}
 
 		// 2.
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-
-
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		ImGui::Begin("OpenglDemo Enes");
-		ImGui::SliderFloat("Pitch", &camPitch, -180.0f, 180.0f);
-		ImGui::SliderFloat("Yaw", &camYaw, -180.0f, 180.0f);
-		for (int i = 0; i < lights.size(); i++)
-		{
-			ImGui::SliderFloat3((std::to_string(i + 1) + ". Light pos").c_str(), (&lights[i].GetPos().z, &lights[i].GetPos().y, &lights[i].GetPos().x), -10.0f, 10.0f);
-		}
-
-		ImGui::End();
-
-		// Rendering
-		ImGui::Render();
+		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ourShader3.Bind();
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / float(SCR_HEIGHT), 0.1f, 100.0f);
-		ourShader3.UniformMatrix4f("uProjection", projection);
-		ourShader3.UniformMatrix4f("uView", cam.GetViewMatrix());
-		ourShader3.Uniform1v("uViewPos", cam.GetPos());
-		ourShader3.UniformLight(lights);
-		ourShader3.Uniform1f("uFar_plane", 25.0f);
-		ourShader3.Uniform1i("uLightCount", lights.size());
 
-		for (int i = 0; i < lights.size(); i++)
-		{
-			lights[i].GetCubeMap().BindTexture(values[i]);
-		}
+		renderer.Draw(lights, entities);
+		ImguiRender(lights);
 
-		ourShader3.Uniform1iv("uDepthMap", values);
-
-		for (int i = 0; i < lights.size(); i++)
-		{
-			lights[i].Draw(ourShader3);
-		}
-
-		floor.Draw(ourShader3);
-		backpack.Draw(ourShader3);
-
-		// renderer.Draw(lights, entities)
-
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+		entities["mini_backpack"]->RotateHorizontally(5.0f);
+		entities["backpack2"]->Move();
+		entities["floor"]->RotateHorizontally(1.0f);
 		frameCount++;
 
 		glfwSwapBuffers(window);
@@ -283,7 +239,47 @@ int main()
 	return 0;
 }
 
-void processInput(GLFWwindow* window, std::vector<Light>& lights)
+template <typename T>
+void ImguiRender(std::vector<T>& entities)
+{
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("OpenglDemo Enes");
+	ImGui::SliderFloat("Pitch", &camPitch, -180.0f, 180.0f);
+	ImGui::SliderFloat("Yaw", &camYaw, -180.0f, 180.0f);
+	for (int i = 0; i < entities.size(); i++)
+	{
+		ImGui::SliderFloat3((std::to_string(i + 1) + ". Light pos").c_str(), (&entities[i].GetPos().z, &entities[i].GetPos().y, &entities[i].GetPos().x), -10.0f, 10.0f);
+	}
+
+	ImGui::End();
+
+	// Rendering
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ImGuiProcesses(GLFWwindow* window)
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 130");
+}
+
+void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);

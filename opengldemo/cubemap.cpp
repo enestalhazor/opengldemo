@@ -1,7 +1,9 @@
 #include "cubemap.hpp"
 #include <vector>
 
-CubeMap::CubeMap(unsigned int width, unsigned int height, float nearPlane, float farPlane) : m_Width(width), m_Height(height), m_NearPlane(nearPlane), m_FarPlane(farPlane)
+static unsigned int slot_num = 5;
+
+CubeMap::CubeMap(unsigned int width, unsigned int height, float nearPlane, float farPlane) : m_Width(width), m_Height(height), m_NearPlane(nearPlane), m_FarPlane(farPlane), m_Slot(slot_num++)
 {
 	std::cout << "cubemap created" << std::endl;
 
@@ -30,9 +32,9 @@ void CubeMap::BindFrameBuffer() const
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void CubeMap::BindTexture(unsigned int slot) const
+void CubeMap::BindTexture() const
 {
-	GLError(glActiveTexture(GL_TEXTURE0 + slot));
+	GLError(glActiveTexture(GL_TEXTURE0 + m_Slot));
 	GLError(glBindTexture(GL_TEXTURE_CUBE_MAP, m_Id));
 }
 
@@ -41,6 +43,12 @@ void CubeMap::UnbindFrameBuffer() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+unsigned int CubeMap::GetSlotNum()
+{
+	return m_Slot;
+}
+
 
 void CubeMap::ConfigureShader(Shader& shader, glm::vec3 lightPos) const
 {

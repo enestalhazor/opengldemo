@@ -15,12 +15,14 @@ private:
 	unsigned int m_Height;
 	float m_NearPlane;
 	float m_FarPlane;
+	unsigned int m_Slot;
 
 public:
 	CubeMap(unsigned int width, unsigned height, float nearPlane, float farPlane);
 	void BindFrameBuffer() const;
-	void BindTexture(unsigned int slot) const;
+	void BindTexture() const;
 	void UnbindFrameBuffer() const; 
+	unsigned int GetSlotNum();
 
 	// this method prepares the given shader for creating cube map
 	void ConfigureShader(Shader& shader, glm::vec3 lightPos) const;
