@@ -126,10 +126,10 @@ int main()
 					{glm::vec3(-1.0f, 0.0f, -1.0f),glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)} };
 
 	VertexArray vA(v, d_indices, 4, sizeof(Vertex), 6);
-	Model backpackModel("backpack/backpack.obj");
-	Model place("models/forest/forest.obj");
-	Model guy("models/guy/bearded_guy_idle_anim.obj");
-	Model gun("models/gun/pistol.obj");
+	Model backpackModel("backpack/backpack.obj_model");
+	Model place("models/forest/forest.obj_model");
+	Model guy("models/guy/bearded_guy_idle_anim.obj_model");
+	Model gun("models/gun/pistol.obj_model");
 
 	textures.emplace_back(floorDiffuse);
 	textures.emplace_back(floorSpecular);
