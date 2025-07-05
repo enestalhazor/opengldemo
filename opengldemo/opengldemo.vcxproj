@@ -110,7 +110,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\opengldemo\deps\Assimp\lib\x64;$(SolutionDir)\opengldemo\deps\Assimp\bin\x64;$(SolutionDir)\opengldemo\deps\glfw-3.4\build\src\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\opengldemo\deps\Assimp\lib\x64;$(SolutionDir)\opengldemo\deps\Assimp\bin\x64;$(SolutionDir)\opengldemo\deps\glfw-3.4;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -129,7 +129,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\opengldemo\deps\Assimp\lib\x64;$(SolutionDir)\opengldemo\deps\Assimp\bin\x64;$(SolutionDir)\opengldemo\deps\glfw-3.4\build\src\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\opengldemo\deps\Assimp\lib\x64;$(SolutionDir)\opengldemo\deps\Assimp\bin\x64;$(SolutionDir)\opengldemo\deps\glfw-3.4;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
