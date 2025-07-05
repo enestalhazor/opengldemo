@@ -14,7 +14,7 @@ uniform mat4 uModel;
 void main()
 {
 	FragPos = vec3(uModel * vec4(aPos, 1.0f));
-	Normal = inverse(mat3(uModel)) * aNormal;
+	Normal = (mat3(uModel)) * aNormal;
 	TexCoords = aTexCoords;
 	gl_Position = uProjection * uView * uModel * vec4(aPos, 1.0f);
 }
@@ -33,7 +33,7 @@ struct Material
 {
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
-	sampler2D texture_mormal1;
+	sampler2D texture_normal1;
 };
 
 struct Light
@@ -61,28 +61,34 @@ float ShadowCalculation(vec3 fragPos, int i)
 
 void main()
 {     
-    vec3 lighting = vec3(0.0f);
+    vec4 lighting = vec4(0.0f);
     for(int i = 0; i < 3; i++)
     {
-        vec3 color = texture(uMaterial.texture_diffuse1, TexCoords).rgb;
-        vec3 normal = normalize(Normal);
-        vec3 lightColor = vec3(1.0f);
+        vec4 color = texture(uMaterial.texture_diffuse1, TexCoords).rgba;
+        if(color.a < 0.1f)
+        {
+            discard;
+        }
 
-        vec3 ambient = uLight[i].ambient * texture(uMaterial.texture_diffuse1, TexCoords).rgb;
+        vec3 normal = normalize(Normal);   
+        vec4 lightColor = vec4(1.0f);
+
+        vec4 ambient = vec4(uLight[i].ambient, 1.0f) * texture(uMaterial.texture_diffuse1, TexCoords).rgba;
+
 
         vec3 lightDir = normalize(uLight[i].position - FragPos);
         float diff = max(dot(lightDir, normal), 0.0f);
-        vec3 diffuse = uLight[i].diffuse * diff * texture(uMaterial.texture_diffuse1, TexCoords).rgb;
+        vec4 diffuse = vec4(uLight[i].diffuse, 1.0f) * diff * texture(uMaterial.texture_diffuse1, TexCoords).rgba;
 
         vec3 viewDir = normalize(uViewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, normal);
         float spec = 0.0f;
         vec3 halfwayDir = normalize(lightDir + viewDir);
         spec = pow(max(dot(normal, halfwayDir), 0.0f), 64.0f);
-        vec3 specular = spec * texture(uMaterial.texture_specular1, TexCoords).rgb;
+        vec4 specular = spec * texture(uMaterial.texture_specular1, TexCoords).rgba;
         float shadow = ShadowCalculation(FragPos, i);
         lighting += (ambient + (1.0f - shadow) * (diffuse + specular)) * color;
     }
 
-    FragColor = vec4(lighting, 1.0f);
+    FragColor = lighting;
 }

@@ -29,23 +29,23 @@ public:
 		unsigned int normalNr = 1;
 		unsigned int heightNr = 1;
 
-			for (unsigned int i = 0; i < m_Textures.size(); i++)
-			{
-				std::string number;
-				std::string name = m_Textures[i].GetType();
+		for (unsigned int i = 0; i < m_Textures.size(); i++)
+		{
+			std::string number;
+			std::string name = m_Textures[i].GetType();
 
-				if (name == "texture_diffuse")
-					number = std::to_string(diffuseNr++);
-				else if (name == "texture_specular")
-					number = std::to_string(specularNr++);
-				else if (name == "texture_normal")
-					number = std::to_string(normalNr++);
-				else if (name == "texture_height")
-					number = std::to_string(heightNr++);
+			if (name == "texture_diffuse")
+				number = std::to_string(diffuseNr++);
+			else if (name == "texture_specular")
+				number = std::to_string(specularNr++);
+			else if (name == "texture_normal")
+				number = std::to_string(normalNr++);
+			else if (name == "texture_height")
+				number = std::to_string(heightNr++);
 
-				shader.Uniform1i(("material." + name + number).c_str(), i);
-				m_Textures[i].Bind(i);
-			}
+			shader.Uniform1i(("uMaterial." + name + number).c_str(), i);
+			m_Textures[i].Bind(i);
+		}
 
 		m_Va.Draw();
 		GLError(glActiveTexture(GL_TEXTURE0));

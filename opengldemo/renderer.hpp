@@ -21,6 +21,6 @@ private:
 public:
 	Renderer(Camera& cam, Shader& shader);
 
-	void Draw(std::vector<Light>& lights, std::unordered_map<std::string ,std::shared_ptr<PhysicalEntity>>& entities);
+	void Render(std::vector<Light>& lights, std::unordered_map<std::string ,std::shared_ptr<PhysicalEntity>>& entities, Shader& shader, unsigned int* SCR_WH);
 
 };

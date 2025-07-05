@@ -17,6 +17,9 @@ public:
 	glm::vec3& GetAmbient();
 	glm::vec3& GetDiffuse();
 	glm::vec3& GetSpecular();
+	void SetAmbient(const glm::vec3& ambient);
+	void SetDiffuse(const glm::vec3& diffuse);
+	void SetSpecular(const glm::vec3& specular);
 	CubeMap& GetCubeMap();
 
 

@@ -13,8 +13,6 @@ Texture::Texture(std::string path, std::string directory, std::string type) : m_
 	//std::cout << "Texture type: " << m_Type << std::endl;
 	//std::cout << std::endl;
 
-	stbi_set_flip_vertically_on_load(true);
-
 	std::string filename = directory + '/' + path;
 
 	GLError(glGenTextures(1, &m_Id));

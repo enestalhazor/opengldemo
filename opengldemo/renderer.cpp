@@ -7,14 +7,32 @@ Renderer::Renderer(Camera& cam, Shader& shader) : m_Cam(cam), m_Shader(shader)
 	std::cout << "Renderer created!" << std::endl;
 	std::cout << "Renderer Camera id: " << cam.GetId() << std::endl;
 	std::cout << std::endl;
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.001f, 100.0f);
 
 	m_Shader.UniformMatrix4f("uProjection", projection);
 	m_Shader.Uniform1f("uFar_plane", 25.0f);
 }
 
-void Renderer::Draw(std::vector<Light>& lights, std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>>& entities)
+void Renderer::Render(std::vector<Light>& lights, std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>>& entities, Shader& shader, unsigned int* SCR_WH)
 {
+	// 1.
+	for (int i = 0; i < lights.size(); i++)
+	{
+		lights[i].GetCubeMap().ConfigureShader(shader, lights[i].GetPos());
+		lights[i].GetCubeMap().BindFrameBuffer();
+
+		for (auto& pair : entities) {
+			pair.second->Draw(shader);
+		}
+
+		lights[i].GetCubeMap().UnbindFrameBuffer();
+	}
+
+	// 2.
+	glViewport(0, 0, SCR_WH[0], SCR_WH[1]);
+	glClearColor(0.45f, 0.55f, 0.60f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	m_Shader.Bind();
 	m_Shader.UniformMatrix4f("uView", m_Cam.GetViewMatrix());
 	m_Shader.Uniform1v("uViewPos", m_Cam.GetPos());
@@ -29,18 +47,10 @@ void Renderer::Draw(std::vector<Light>& lights, std::unordered_map<std::string, 
 		values.push_back(lights[i].GetCubeMap().GetSlotNum());
 	}
 
-
 	m_Shader.Uniform1iv("uDepthMap", values);
 
-	for (int i = 0; i < lights.size(); i++)
-	{
-		lights[i].Draw(m_Shader);
-	}
-
-	for (auto& pair: entities)
+	for (auto& pair : entities)
 	{
 		pair.second->Draw(m_Shader);
 	}
-
-
 }

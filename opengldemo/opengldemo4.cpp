@@ -32,7 +32,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, std::vector<Light>& lights, std::shared_ptr<PhysicalEntity> flash);
 void ImGuiProcesses(GLFWwindow* window);
 template <typename T>
 void ImguiRender(std::vector<T>& entities);
@@ -46,6 +46,7 @@ unsigned int SCR_HEIGHT = 600;
 
 bool firstMouse1 = true;
 bool fpsControl = true;
+bool gunAnimation = false;
 
 float lastX1 = SCR_WIDTH / 2.0f;
 float lastY1 = SCR_HEIGHT / 2.0f;
@@ -53,9 +54,10 @@ float deltaTime1 = 0.0f;
 float lastFrame1 = 0.0f;
 float camPitch = 0;
 float camYaw = 0;
+float gunPitch = 0;
 
 static int frameCount = 0;
-static Camera cam(glm::vec3(0.0f, 0.0f, 3.0f));
+static Camera cam(glm::vec3(0.0f, 2.0f, 3.0f));
 
 glm::vec3 lightDiffuse(1.0f, 1.0f, 1.0f);
 
@@ -88,6 +90,8 @@ int main()
 	}
 
 	GLError(glEnable(GL_DEPTH_TEST));
+	GLError(glEnable(GL_BLEND));
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//  Renderer renderer(cam);
 
@@ -95,10 +99,12 @@ int main()
 	Shader lightShader("lightshader.glsl", false);
 	Shader cubeMapShader("pointshadow_depth.glsl", true);
 
+	Texture muzzleFlash("muzzleflash.png", "mytextures", "texture_diffuse");
 	Texture floorDiffuse("wood.png", "mytextures", "texture_diffuse");
 	Texture floorSpecular("wood.png", "mytextures", "texture_specular");
 
 	std::vector<Texture> textures;
+	std::vector<Texture> textures2;
 	std::vector<Vertex> vertices;
 	std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>> entities;
 	std::vector<Light> lights;
@@ -121,9 +127,14 @@ int main()
 
 	VertexArray vA(v, d_indices, 4, sizeof(Vertex), 6);
 	Model backpackModel("backpack/backpack.obj");
+	Model place("models/forest/forest.obj");
+	Model guy("models/guy/bearded_guy_idle_anim.obj");
+	Model gun("models/gun/pistol.obj");
 
 	textures.emplace_back(floorDiffuse);
 	textures.emplace_back(floorSpecular);
+
+	textures2.emplace_back(muzzleFlash);
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -136,32 +147,35 @@ int main()
 	}
 
 	std::vector<Mesh> meshes;
+	std::vector<Mesh> meshes2;
 	Mesh mesh(vertices, indices, textures);
+	Mesh mFlash(vertices, indices, textures2);
 	meshes.push_back(mesh);
+	meshes2.push_back(mFlash);
 
-	entities["floor"] = std::make_shared<PhysicalEntity>(meshes, glm::vec3(0.0f, -2.0f, 0.0f));
+	entities["muzzleflash"] = std::make_shared<PhysicalEntity>(meshes2);
+	entities["muzzleflash"]->SetScale(glm::vec3(0.0f));
+	entities["muzzleflash"]->SetPitch(90.0f);
 	entities["backpack1"] = std::make_shared<PhysicalEntity>(backpackModel.m_Meshes);
-	entities["backpack2"] = std::make_shared<PhysicalEntity>(backpackModel.m_Meshes);
-	entities["mini_backpack"] = std::make_shared<PhysicalEntity>(backpackModel.m_Meshes);
+	entities["backpack1"]->SetPos(glm::vec3(1.10f, 0.14f, 1.15f));
+	entities["backpack1"]->SetScale(glm::vec3(0.01f));
+	entities["place"] = std::make_shared<PhysicalEntity>(place.m_Meshes);
+	entities["place"]->SetScale(glm::vec3(0.2f));
+	entities["guy"] = std::make_shared<PhysicalEntity>(guy.m_Meshes);
+	entities["guy"]->SetPos(glm::vec3(1.10f, 0.09f, 1.2f));
+	entities["guy"]->SetScale(glm::vec3(0.05f));
+	entities["guy"]->RotateVertically(90.0f);
+	entities["gun"] = std::make_shared<PhysicalEntity>(gun.m_Meshes);
+	entities["gun"]->SetScale(glm::vec3(0.0005f));
 
-	entities["floor"]->SetScale(glm::vec3(5.0f));
-	entities["backpack2"]->SetScale(glm::vec3(0.5f));
-	entities["backpack2"]->SetPos(glm::vec3(3.0f, 0.0f, 0.0f));
-	entities["backpack2"]->SetSpeed(glm::vec3(0.01f, 0.0f, 0.06f));
-	entities["mini_backpack"]->SetScale(glm::vec3(0.01f));
-	entities["mini_backpack"]->SetPos(glm::vec3(0.0f, 0.0f, 1.5f));
-
-	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 2.0f), meshes);
-	lights.emplace_back(glm::vec3(0.3f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f, 3.0f, 2.0f), meshes);
+	lights.emplace_back(glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(0.5f), glm::vec3(0.0f, 1.0f, 2.0f), meshes);
+	lights.emplace_back(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), cam.GetPos() + cam.GetDirection() * 0.1f, meshes);
 
 	for (int i = 0; i < 3; i++)
 	{
-		lights.emplace_back(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), meshes);
+		lights.emplace_back(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(100.0f, 0.0f, 0.0f), meshes);
 	}
-
-	// imgui
 	ImGuiProcesses(window);
-	// imgui
 
 	for (auto& light : lights)
 	{
@@ -189,13 +203,33 @@ int main()
 			continue;
 		}
 
+		switch (gunAnimation)
+		{
+		case true:
+			gunPitch += 3.0f;
+
+			entities["muzzleflash"]->SetScale(glm::vec3(0.0f));
+			lights[1].SetAmbient(glm::vec3(0.0f));
+			lights[1].SetDiffuse(glm::vec3(0.0f));
+			lights[1].SetSpecular(glm::vec3(0.0f));
+
+			if (gunPitch >= 15.0f)
+			{
+				std::cout << "animation ended" << std::endl;
+				
+
+				gunAnimation = false;
+				gunPitch = 0.0f;
+
+			}
+			break;
+		}
+
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime1 = currentFrame - lastFrame1;
 		lastFrame1 = currentFrame;
 
-		processInput(window);
-
-		GLError(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
+		processInput(window, lights, entities["muzzleflash"]);
 
 		if (!fpsControl)
 		{
@@ -203,33 +237,19 @@ int main()
 			cam.SetYaw(camYaw);
 		}
 
-		// 1.
-		for (int i = 0; i < lights.size(); i++)
-		{
-			lights[i].GetCubeMap().ConfigureShader(cubeMapShader, lights[i].GetPos());
-			lights[i].GetCubeMap().BindFrameBuffer();
+		entities["gun"]->SetPos(cam.GetPos() + (cam.GetDirection() + glm::vec3(0.0f, -0.4f, 0.0f) + glm::cross(cam.GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f)) * 0.5f) * 0.02f);
+		entities["gun"]->SetYaw(-cam.GetYaw() + 90.0f);
+		entities["gun"]->SetPitch(-cam.GetPitch() - gunPitch);
+		lights[1].SetPos(cam.GetPos() + cam.GetDirection() * 0.05f);
+		entities["muzzleflash"]->SetPos(entities["gun"]->GetPos() + (cam.GetDirection() * 0.01f) + glm::vec3(0.0f, 0.003f, 0.0f));
+		entities["muzzleflash"]->SetYaw(-cam.GetYaw() + 90.0f);
+		entities["muzzleflash"]->SetPitch(-cam.GetPitch() + 90.0f);
 
-			for (auto& pair : entities) {
-				pair.second->Draw(cubeMapShader);
-			}
-
-			lights[i].GetCubeMap().UnbindFrameBuffer();
-		}
-
-		// 2.
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-		renderer.Draw(lights, entities);
+		unsigned int SCR_WD[] = { SCR_WIDTH, SCR_HEIGHT };
+		renderer.Render(lights, entities, cubeMapShader, SCR_WD);
 		ImguiRender(lights);
 
-		entities["mini_backpack"]->RotateHorizontally(5.0f);
-		entities["backpack2"]->Move();
-		entities["floor"]->RotateHorizontally(1.0f);
+		// entities["mini_backpack"]->RotateHorizontally(5.0f);
 		frameCount++;
 
 		glfwSwapBuffers(window);
@@ -279,20 +299,34 @@ void ImGuiProcesses(GLFWwindow* window)
 	ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, std::vector<Light>& lights, std::shared_ptr<PhysicalEntity> flash)
 {
+	float camSpeed = 0.5f;
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cam.MoveForward(deltaTime1 * 2.0f);
+		cam.MoveForward(deltaTime1 * camSpeed);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cam.MoveLeft(deltaTime1 * 2.0f);
+		cam.MoveLeft(deltaTime1 * camSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cam.MoveBackward(deltaTime1 * 2.0f);
+		cam.MoveBackward(deltaTime1 * camSpeed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cam.MoveRight(deltaTime1 * 2.0f);
+		cam.MoveRight(deltaTime1 * camSpeed);
 	if (glfwGetKey(window, GLFW_KEY_F6) == GLFW_PRESS)
 		fpsControl = !fpsControl;
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		if (!gunAnimation)
+		{
+			lights[1].SetAmbient(glm::vec3(0.1f));
+			lights[1].SetDiffuse(glm::vec3(0.3f));
+			lights[1].SetSpecular(glm::vec3(1.0f));
+			flash->SetScale(glm::vec3(0.003f));
+
+			std::cout << "animation started" << std::endl;
+			gunAnimation = true;
+		}
+	}
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
