@@ -47,6 +47,7 @@ public:
 			m_Textures[i].Bind(i);
 		}
 
+		shader.Bind();
 		m_Va.Draw();
 		GLError(glActiveTexture(GL_TEXTURE0));
 	}
