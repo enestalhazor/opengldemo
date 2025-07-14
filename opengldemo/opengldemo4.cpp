@@ -95,10 +95,17 @@ int main()
 	Shader lightShader("lightshader.glsl", false);
 	Shader cubeMapShader("pointshadow_depth.glsl", true);
 
-	Texture muzzleFlash("muzzleflash.png", "mytextures", "texture_diffuse");
-	Texture cross("cross.png", "mytextures", "texture_diffuse");
-	Texture floorDiffuse("wood.png", "mytextures", "texture_diffuse");
-	Texture floorSpecular("wood.png", "mytextures", "texture_specular");
+	Texture muzzleFlash("muzzleflash.png", "mytextures", "texture_diffuse", false);
+	Texture cross("cross.png", "mytextures", "texture_diffuse", false);
+
+	Texture letters("letters.png", "mytextures", "texture_diffuse", true);
+
+	Texture e("e.png", "mytextures", "texture_diffuse", false);
+	Texture n("n.png", "mytextures", "texture_diffuse", false);
+	Texture s("s.png", "mytextures", "texture_diffuse", false);
+
+	Texture floorDiffuse("wood.png", "mytextures", "texture_diffuse", false);
+	Texture floorSpecular("wood.png", "mytextures", "texture_specular", false);
 
 	std::vector<Texture> textures;
 	textures.emplace_back(floorDiffuse);
@@ -107,13 +114,12 @@ int main()
 	std::vector<Texture> textures2;
 	textures2.emplace_back(muzzleFlash);
 
-	std::vector<Texture> textures3;
-	textures3.emplace_back(cross);
-
 	std::vector<Vertex> vertices;
 	std::vector<Vertex> vertices2;
+
 	std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>> entities;
 	std::unordered_map<std::string, std::shared_ptr<UI>> UIs;
+
 	std::vector<Light> lights;
 	std::vector<unsigned int> indices;
 
@@ -121,6 +127,26 @@ int main()
 			0, 1, 3,
 			1, 2, 3
 	};
+
+	// bottom right 1.
+	// top right 2.
+	// top left 3.
+	// bottom left 4.
+
+	Vertex eVa[] = { {glm::vec3(0.25f, -0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.86f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(-0.25f, 0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.8f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(-0.25f, -0.25f, 0.0f),glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.8f, 0.86f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)} };
+
+	Vertex nVa[] = { {glm::vec3(0.25f, -0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.790f ,0.575f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(0.790f, 0.720f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(-0.25f, 0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  glm::vec2(0.6f, 0.720f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(-0.25f, -0.25f, 0.0f),glm::vec3(0.0f, 1.0f, 0.0f),  glm::vec2(0.6f, 0.575f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)} };
+
+	Vertex sVa[] = { {glm::vec3(0.25f, -0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.790f ,0.43f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(0.25f, 0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),   glm::vec2(0.790f, 0.57f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(-0.25f, 0.25f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),  glm::vec2(0.6f, 0.57f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
+					{glm::vec3(-0.25f, -0.25f, 0.0f),glm::vec3(0.0f, 1.0f, 0.0f),  glm::vec2(0.6f, 0.43f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)} };
 
 	Vertex v[] = { {glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
 					{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)},
@@ -150,7 +176,6 @@ int main()
 
 	Mesh mesh(vertices, indices, textures);
 	Mesh mFlash(vertices, indices, textures2);
-	Mesh mCross(vertices2, indices, textures3);
 
 	std::vector<Mesh> meshes;
 	meshes.push_back(mesh);
@@ -160,6 +185,15 @@ int main()
 
 	// UI
 	UIs["crosshair"] = UI::NewBasic(v, d_indices, cross, "cross.glsl");
+
+	UIs["e"] = UI::NewBasic(eVa, d_indices, letters, "cross.glsl");
+	UIs["e"]->SetPos(glm::vec3(5.65f, 4.0f, 0.0f));
+	UIs["n"] = UI::NewBasic(nVa, d_indices, letters, "cross.glsl");
+	UIs["n"]->SetPos(glm::vec3(6.050f, 4.0f, 0.0f));
+	UIs["e2"] = UI::NewBasic(eVa, d_indices, letters, "cross.glsl");
+	UIs["e2"]->SetPos(glm::vec3(6.5f, 4.0f, 0.0f));
+	UIs["s"] = UI::NewBasic(sVa, d_indices, letters, "cross.glsl");
+	UIs["s"]->SetPos(glm::vec3(6.9f, 4.0f, 0.0f));
 
 	// PhysicalEntity
 	entities["backpack1"] = PhysicalEntity::NewFromModel(backpackModel);

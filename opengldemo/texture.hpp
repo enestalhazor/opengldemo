@@ -14,7 +14,7 @@ private:
 
 public:
 	
-	Texture(std::string path, std::string directory, std::string type);
+	Texture(std::string path, std::string directory, std::string type, bool flip);
 
 	void Bind() const;
 	void Bind(unsigned int slot) const;

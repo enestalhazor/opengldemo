@@ -6,13 +6,16 @@
 #include <glm/ext.hpp>
 #include "glerror.hpp"
 
-Texture::Texture(std::string path, std::string directory, std::string type) : m_Path(path), m_Type(type)
+Texture::Texture(std::string path, std::string directory, std::string type, bool flip) : m_Path(path), m_Type(type)
 {
 	//std::cout << "Texture created!" << std::endl;
 	//std::cout << "Texture path: " << directory << "/" << path << std::endl;
 	//std::cout << "Texture type: " << m_Type << std::endl;
 	//std::cout << std::endl;
 
+	
+	stbi_set_flip_vertically_on_load(flip);
+	
 	std::string filename = directory + '/' + path;
 
 	GLError(glGenTextures(1, &m_Id));

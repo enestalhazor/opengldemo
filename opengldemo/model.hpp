@@ -169,7 +169,7 @@ private:
 			}
 			if (!skip)
 			{   // if texture hasn't been loaded already, load it
-				Texture texture(str.C_Str(), this->m_Directory, typeName);
+				Texture texture(str.C_Str(), this->m_Directory, typeName, false);
 				textures.push_back(texture);
 				m_Textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 			}
