@@ -200,8 +200,8 @@ int main()
 	}
 
 	// UI entities
-	uiEntities["crosshair"] = UIEntity::New(planeVertices, planeIndices, cross, "cross.glsl");
-	auto singleCharEntity = UIEntity::New(oneVa, planeIndices, letters, "cross.glsl");
+	uiEntities["crosshair"] = UIEntity::New(planeVertices, planeIndices, cross, "shaders/cross.glsl");
+	auto singleCharEntity = UIEntity::New(oneVa, planeIndices, letters, "shaders/cross.glsl");
 
 	// physical entities
 	entities["backpack1"] = PhysicalEntity::NewFromModel(backpack);
