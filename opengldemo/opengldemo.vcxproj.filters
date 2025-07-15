@@ -42,7 +42,7 @@
     <ClCompile Include="src\glerror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\opengldemo4.cpp">
+    <ClCompile Include="src\application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\cubemap.cpp">

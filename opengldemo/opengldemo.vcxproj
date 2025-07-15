@@ -142,7 +142,7 @@
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\glerror.cpp" />
     <ClCompile Include="src\light.cpp" />
-    <ClCompile Include="src\opengldemo4.cpp" />
+    <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\physicalentity.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shader.cpp" />
