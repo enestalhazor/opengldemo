@@ -20,4 +20,5 @@ public:
 
 	void Draw() const;
 	void Bind() const;
+	void UpdateVertexData(Vertex* vertices, size_t count, size_t vertexSize);
 };

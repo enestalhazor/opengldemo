@@ -134,7 +134,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ui.cpp" />
+    <ClCompile Include="uientity.cpp" />
+    <ClCompile Include="textentity.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cubemap.cpp" />
@@ -190,7 +191,8 @@
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="shadowmap.hpp" />
     <ClInclude Include="texture.hpp" />
-    <ClInclude Include="ui.hpp" />
+    <ClInclude Include="uientity.hpp" />
+    <ClInclude Include="textentity.hpp" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_win32.h" />

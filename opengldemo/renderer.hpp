@@ -12,7 +12,8 @@
 #include "texture.hpp"
 #include <unordered_map>
 #include "light.hpp"
-#include "ui.hpp"
+#include "uientity.hpp"
+#include "physicalentity.hpp"
 
 class Renderer
 {
@@ -25,7 +26,7 @@ public:
 	Renderer(Camera& cam, Shader& shader);
 
 	void Render(std::vector<Light>& lights, std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>>& entities, Shader& shader);
-	void RenderUI(std::unordered_map<std::string, std::shared_ptr<UI>>& UIs);
+	void RenderUI(std::unordered_map<std::string, std::shared_ptr<UIEntity>>& UIs);
 	unsigned int GetScreenW();
 	unsigned int GetScreenH();
 	void SetScreenW(int w);

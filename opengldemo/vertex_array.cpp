@@ -64,3 +64,9 @@ void VertexArray::Bind() const
 	GLError(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 	GLError(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
 }
+
+void VertexArray::UpdateVertexData(Vertex* vertices, size_t count, size_t vertexSize)
+{
+	GLError(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+	GLError(glBufferData(GL_ARRAY_BUFFER, count * vertexSize, vertices, GL_STATIC_DRAW));
+}

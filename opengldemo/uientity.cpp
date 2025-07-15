@@ -1,21 +1,21 @@
-#include "ui.hpp"
+#include "uientity.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 
-UI::UI(std::vector<Vertex>& vertices, std::vector<unsigned int> indices, std::vector<Texture>& textures, std::string shadername) : m_Mesh(vertices, indices, textures), m_Shader(shadername.c_str(), false), Entity()
+UIEntity::UIEntity(std::vector<Vertex>& vertices, std::vector<unsigned int> indices, std::vector<Texture>& textures, std::string shadername) : m_Mesh(vertices, indices, textures), m_Shader(shadername.c_str(), false), Entity()
 {
 	SetScale(glm::vec3(1.0f));
 }
 
-void UI::Draw()
+void UIEntity::Draw()
 {
 	ConfigureShader();
 	m_Mesh.Draw(m_Shader);
 }
 
-void UI::ConfigureShader()
+void UIEntity::ConfigureShader()
 {
 	glm::mat4 projection = glm::ortho(-8.0f, 8.0f, -4.5f, 4.5f, 0.0f, 1.0f);
 	m_Shader.UniformMatrix4f("uProjection", projection);
@@ -25,7 +25,7 @@ void UI::ConfigureShader()
 	m_Shader.UniformMatrix4f("uModel", model);
 }
 
-std::shared_ptr<UI> UI::NewBasic(Vertex* vertex, unsigned int* index, Texture& texture, std::string shadername)
+std::shared_ptr<UIEntity> UIEntity::New(Vertex* vertex, unsigned int* index, Texture& texture, std::string shadername)
 {
 	std::vector<unsigned int> indices;
 	for (int i = 0; i < 6; i++)
@@ -42,7 +42,12 @@ std::shared_ptr<UI> UI::NewBasic(Vertex* vertex, unsigned int* index, Texture& t
 	std::vector<Texture> textures;
 	textures.emplace_back(texture);
 
-	std::shared_ptr<UI> pe = std::make_shared<UI>(vertices, indices, textures, shadername);
+	std::shared_ptr<UIEntity> pe = std::make_shared<UIEntity>(vertices, indices, textures, shadername);
 
 	return pe;
+}
+
+Mesh& UIEntity::GetMesh()
+{
+	return m_Mesh;
 }

@@ -52,4 +52,14 @@ public:
 		GLError(glActiveTexture(GL_TEXTURE0));
 	}
 
+	void UpdateVertexData(std::vector<Vertex>& vertices)
+	{
+		m_Va.UpdateVertexData(&vertices[0], vertices.size(), sizeof(Vertex));
+	}
+
+	void UpdateVertexData(Vertex* vertices, size_t count)
+	{
+		m_Va.UpdateVertexData(vertices, count, sizeof(Vertex));
+	}
+
 };

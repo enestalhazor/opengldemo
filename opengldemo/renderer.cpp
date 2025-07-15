@@ -57,7 +57,7 @@ void Renderer::Render(std::vector<Light>& lights, std::unordered_map<std::string
 	}
 }
 
-void Renderer::RenderUI(std::unordered_map<std::string, std::shared_ptr<UI>>& UIs)
+void Renderer::RenderUI(std::unordered_map<std::string, std::shared_ptr<UIEntity>>& UIs)
 {
 	glViewport(0, 0, m_ScreenW, m_ScreenH);
 
