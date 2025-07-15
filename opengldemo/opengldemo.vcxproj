@@ -142,11 +142,7 @@
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="glerror.cpp" />
     <ClCompile Include="light.cpp" />
-    <ClCompile Include="opengldemo2.cpp" />
-    <ClCompile Include="opengldemo.cpp" />
-    <ClCompile Include="opengldemo3.cpp" />
     <ClCompile Include="opengldemo4.cpp" />
-    <ClCompile Include="opengldemo5.cpp" />
     <ClCompile Include="physicalentity.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -165,27 +161,13 @@
     <ClCompile Include="vertex_data.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="1.colors.glsl" />
-    <None Include="cross.glsl" />
-    <None Include="lightshader.glsl" />
-    <None Include="pointshadow.glsl" />
-    <None Include="pointshadow_depth.glsl" />
-    <None Include="shadow.glsl" />
-    <None Include="shadowmaprender.glsl" />
-    <None Include="shadowmap.glsl" />
-    <None Include="shader.glsl" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="cubemap.hpp" />
     <ClInclude Include="entity.hpp" />
     <ClInclude Include="glerror.hpp" />
-    <ClInclude Include="global.hpp" />
     <ClInclude Include="light.hpp" />
-    <ClInclude Include="material.hpp" />
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="model.hpp" />
-    <ClInclude Include="model2.hpp" />
     <ClInclude Include="physicalentity.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="shader.hpp" />
@@ -199,9 +181,6 @@
     <ClInclude Include="vendor\stb\stb_image.hpp" />
     <ClInclude Include="vertex.hpp" />
     <ClInclude Include="vertex_array.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="howtodebug.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

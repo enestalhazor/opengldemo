@@ -20,8 +20,6 @@
 #include "camera.hpp"
 #include "renderer.hpp"
 #include "vertex_data.hpp"
-#include "global.hpp"
-#include "material.hpp"
 #include "mesh.hpp"
 #include "model.hpp"
 #include "glerror.hpp"
@@ -175,17 +173,17 @@ int main()
 
 	unsigned int ammoNum = 500;
 
-	Shader mainShader("pointshadow.glsl", false);
-	Shader cubeMapShader("pointshadow_depth.glsl", true);
+	Shader mainShader("shaders/pointshadow.glsl", false);
+	Shader cubeMapShader("shaders/pointshadow_depth.glsl", true);
 
-	Model backpack("backpack/backpack.obj_model");
-	Model forest("models/forest/forest.obj_model");
-	Model guy("models/guy/bearded_guy_idle_anim.obj_model");
-	Model gun("models/gun/pistol.obj_model");
+	Model backpack("assets/models/backpack/backpack.obj_model");
+	Model forest("assets/models/forest/forest.obj_model");
+	Model guy("assets/models/guy/bearded_guy_idle_anim.obj_model");
+	Model gun("assets/models/gun/pistol.obj_model");
 
-	Texture muzzleFlash("muzzleflash.png", "mytextures", "texture_diffuse", false);
-	Texture cross("cross.png", "mytextures", "texture_diffuse", false);
-	Texture letters("letters.png", "mytextures", "texture_diffuse", true);
+	Texture muzzleFlash("muzzleflash.png", "assets/textures", "texture_diffuse", false);
+	Texture cross("cross.png", "assets/textures", "texture_diffuse", false);
+	Texture letters("letters.png", "assets/textures", "texture_diffuse", true);
 
 	std::unordered_map<std::string, std::shared_ptr<PhysicalEntity>> entities;
 	std::unordered_map<std::string, std::shared_ptr<UIEntity>> uiEntities;
