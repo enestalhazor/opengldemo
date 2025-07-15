@@ -180,6 +180,7 @@ int main()
 	Model forest("assets/models/forest/forest.obj_model");
 	Model guy("assets/models/guy/bearded_guy_idle_anim.obj_model");
 	Model gun("assets/models/gun/pistol.obj_model");
+	Model skull("assets/models/skull/12140_Skull_v3_L2.obj_model");
 
 	Texture muzzleFlash("muzzleflash.png", "assets/textures", "texture_diffuse", false);
 	Texture cross("cross.png", "assets/textures", "texture_diffuse", false);
@@ -204,11 +205,13 @@ int main()
 	auto singleCharEntity = UIEntity::New(oneVa, planeIndices, letters, "shaders/cross.glsl");
 
 	// physical entities
+
 	entities["backpack1"] = PhysicalEntity::NewFromModel(backpack);
 	entities["muzzleFlash"] = PhysicalEntity::NewBasic(planeVertices, planeIndices, muzzleFlash);
 	entities["forest"] = PhysicalEntity::NewFromModel(forest);
 	entities["guy"] = PhysicalEntity::NewFromModel(guy);
 	entities["gun"] = PhysicalEntity::NewFromModel(gun);
+	entities["skull"] = PhysicalEntity::NewFromModel(skull);
 
 	entities["backpack1"]->SetPos(glm::vec3(1.10f, 0.14f, 1.15f));
 	entities["backpack1"]->SetScale(glm::vec3(0.01f));
@@ -219,6 +222,10 @@ int main()
 	entities["guy"]->SetScale(glm::vec3(0.05f));
 	entities["guy"]->RotateVertically(90.0f);
 	entities["gun"]->SetScale(glm::vec3(0.0005f));
+	entities["skull"]->SetPos(entities["guy"]->GetPos() + glm::vec3(0.0f, 0.0f, 1.0f));
+	entities["skull"]->SetScale(glm::vec3(0.001f));
+	entities["skull"]->SetPitch(-90.0f);
+	entities["skull"]->SetSpeed(glm::vec3(0.0f, 0.001f, 0.0f));
 
 	// texts
 	textEntities["ammo"] = TextEntity::New(std::to_string(ammoNum), glm::vec3(6.5f, -4.0f, 0.0f));
@@ -240,10 +247,13 @@ int main()
 			case true:
 				gunPitch += 1.0f;
 
-				entities["muzzleFlash"]->SetScale(glm::vec3(0.0f));
-				lights[1].SetAmbient(glm::vec3(0.0f));
-				lights[1].SetDiffuse(glm::vec3(0.0f));
-				lights[1].SetSpecular(glm::vec3(0.0f));
+				if (gunPitch > 5.0f)
+				{
+					entities["muzzleFlash"]->SetScale(glm::vec3(0.0f));
+					lights[1].SetAmbient(glm::vec3(0.0f));
+					lights[1].SetDiffuse(glm::vec3(0.0f));
+					lights[1].SetSpecular(glm::vec3(0.0f));
+				}
 
 				if (gunPitch >= 20.0f)
 				{
@@ -260,7 +270,13 @@ int main()
 			lights[1].SetPos(cam.GetPos() + cam.GetDirection() * 0.05f);
 			entities["muzzleFlash"]->SetPos(entities["gun"]->GetPos() + (cam.GetDirection() * 0.01f) + glm::vec3(0.0f, 0.003f, 0.0f));
 			entities["muzzleFlash"]->SetYaw(-cam.GetYaw() + 90.0f);
-			entities["muzzleFlash"]->SetPitch(-cam.GetPitch() + 90.0f);
+			entities["muzzleFlash"]->SetPitch(-cam.GetPitch());
+			if (entities["skull"]->GetPos().y >= 1.5f)
+			{
+				entities["skull"]->SetSpeed(glm::vec3(0.0f));
+			}
+
+			entities["skull"]->Move();
 			textEntities["ammo"]->SetStr(ammoNum);
 		};
 
