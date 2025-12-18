@@ -271,6 +271,7 @@ int main()
 			entities["muzzleFlash"]->SetPos(entities["gun"]->GetPos() + (cam.GetDirection() * 0.01f) + glm::vec3(0.0f, 0.003f, 0.0f));
 			entities["muzzleFlash"]->SetYaw(-cam.GetYaw() + 90.0f);
 			entities["muzzleFlash"]->SetPitch(-cam.GetPitch());
+
 			if (entities["skull"]->GetPos().y >= 1.5f)
 			{
 				entities["skull"]->SetSpeed(glm::vec3(0.0f));
