@@ -1,4 +1,4 @@
-# OpenGL FPS Demo – Project Explanation
+# OpenGL FPS Demo ï¿½ Project Explanation
 
 ## Overview
 This project is a **C++ OpenGL mini-engine and FPS-style demo** built on **OpenGL 3.3 Core**.  
@@ -45,21 +45,20 @@ All objects are based on a transform-driven `Entity` system.
 - Movement helpers
 
 **Derived entities**
-- PhysicalEntity – 3D world objects
-- Camera – FPS camera
-- Light – Point light with shadow cubemap
-- UIEntity – 2D screen-space objects
-- TextEntity – Text logic (ammo counter)
+- PhysicalEntity ï¿½ 3D world objects
+- Camera ï¿½ FPS camera
+- Light ï¿½ Point light with shadow cubemap
+- UIEntity ï¿½ 2D screen-space objects
+- TextEntity ï¿½ Text logic (ammo counter)
 
 ---
 
 ### Camera & Controls
 - Mouse controls yaw and pitch
 - Keyboard:
-  - W / A / S / D – Move
-  - Left Mouse – Shoot
-  - F6 – Toggle mouse capture
-  - ESC – Exit
+  - W / A / S / D ï¿½ Move
+  - Left Mouse ï¿½ Shoot
+  - ESC ï¿½ Exit
 
 Camera direction is calculated using yaw/pitch angles.
 
@@ -109,8 +108,3 @@ This project is a **learning-focused OpenGL FPS demo / mini engine** designed to
 - Engine-style architecture
 - Shadow mapping techniques
 - FPS camera and interaction logic
-
----
-
-## One-Sentence Summary
-**A modular C++ OpenGL FPS demo featuring point-light shadow mapping, first-person controls, shooting mechanics, UI rendering, and real-time debugging.**
