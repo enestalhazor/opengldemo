@@ -45,20 +45,20 @@ All objects are based on a transform-driven `Entity` system.
 - Movement helpers
 
 **Derived entities**
-- PhysicalEntity � 3D world objects
-- Camera � FPS camera
-- Light � Point light with shadow cubemap
-- UIEntity � 2D screen-space objects
-- TextEntity � Text logic (ammo counter)
+- PhysicalEntity - 3D world objects
+- Camera - FPS camera
+- Light - Point light with shadow cubemap
+- UIEntity - 2D screen-space objects
+- TextEntity - Text logic (ammo counter)
 
 ---
 
 ### Camera & Controls
 - Mouse controls yaw and pitch
 - Keyboard:
-  - W / A / S / D � Move
-  - Left Mouse � Shoot
-  - ESC � Exit
+  - W / A / S / D - Move
+  - Left Mouse - Shoot
+  - ESC - Exit
 
 Camera direction is calculated using yaw/pitch angles.
 
