@@ -1,4 +1,4 @@
-# OpenGL FPS Demo � Project Explanation
+# OpenGL FPS Demo Project Explanation
 
 ## Overview
 This project is a **C++ OpenGL mini-engine and FPS-style demo** built on **OpenGL 3.3 Core**.  
